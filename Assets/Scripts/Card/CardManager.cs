@@ -132,4 +132,19 @@ public class CardManager : MonoBehaviour
 
         bullet.Initialize(direction, bulletSpeed, bulletDamage, bulletLifeTime); // 탄환의 방향, 속도, 피해량, 생존 시간을 설정한다.
     }
+
+    public void IncreaseBulletDamage(int amount) // 픽셀 샷 탄환 피해량을 증가시킨다.
+    {
+        bulletDamage += amount; // 탄환 피해량을 증가시킨다.
+
+        Debug.Log("픽셀 샷 데미지 증가 : " + bulletDamage); // 증가된 피해량을 로그로 출력한다.
+    }
+
+    public void ReduceCooldown(float amount) // 픽셀 샷 쿨타임을 감소시킨다.
+    {
+        cooldown -= amount; // 쿨타임을 감소시킨다.
+        cooldown = Mathf.Max(cooldown, 0.2f); // 쿨타임이 너무 낮아지지 않도록 제한한다.
+
+        Debug.Log("픽셀 샷 쿨타임 감소 : " + cooldown); // 감소된 쿨타임을 로그로 출력한다.
+    }
 }

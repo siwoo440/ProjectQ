@@ -69,7 +69,14 @@ public class PlayerStats : MonoBehaviour
     {
         shield += amount; // 보호막을 증가시킨다.
     }
+    public void IncreaseMaxMana(float amount) // 최대 마나를 증가시킨다.
+    {
+        maxMana += amount; // 최대 마나를 증가시킨다.
+        currentMana += amount; // 현재 마나도 같이 증가시킨다.
+        currentMana = Mathf.Min(currentMana, maxMana); // 현재 마나가 최대 마나를 넘지 않게 한다.
 
+        Debug.Log("최대 MP 증가 : " + maxMana); // 증가된 최대 마나를 로그로 출력한다.
+    }
     private void Die() // 플레이어 사망을 처리한다.
     {
         Debug.Log("Player Dead"); // 사망 로그를 출력한다.
