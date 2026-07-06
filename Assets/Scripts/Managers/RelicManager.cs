@@ -87,6 +87,26 @@ public class RelicManager : MonoBehaviour
             case RelicType.ShieldFragment: // Shield Fragment 유물인지 확인한다.
                 Debug.Log("Shield Fragment will apply at battle start."); // 전투 시작 효과 로그를 출력한다.
                 break; // switch문을 종료한다.
+
+            case RelicType.PixelLens: // Pixel Lens 유물인지 확인한다.
+                ApplyPixelLens(relicData.value); // Pixel Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.FocusLens: // Focus Lens 유물인지 확인한다.
+                ApplyFocusLens(relicData.value); // Focus Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.WideBarrel: // Wide Barrel 유물인지 확인한다.
+                ApplyWideBarrel(relicData.value); // Wide Shot 탄환 수 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.RapidBattery: // Rapid Battery 유물인지 확인한다.
+                ApplyRapidBattery(relicData.value); // Rapid Shot 쿨타임 감소 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.HeavyCore: // Heavy Core 유물인지 확인한다.
+                ApplyHeavyCore(relicData.value); // Heavy Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
         }
     }
 
@@ -135,7 +155,65 @@ public class RelicManager : MonoBehaviour
 
         cardManager.ReduceCooldown(value); // 모든 카드 쿨타임 감소량을 증가시킨다.
     }
+    private void ApplyPixelLens(float value) // Pixel Lens 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
 
+        cardManager.UpgradeCardDamage(CardType.PixelShot, Mathf.RoundToInt(value)); // Pixel Shot 데미지를 증가시킨다.
+        Debug.Log("Pixel Lens Applied : Pixel Shot Damage +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyFocusLens(float value) // Focus Lens 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardDamage(CardType.FocusShot, Mathf.RoundToInt(value)); // Focus Shot 데미지를 증가시킨다.
+        Debug.Log("Focus Lens Applied : Focus Shot Damage +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyWideBarrel(float value) // Wide Barrel 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardBulletCount(CardType.WideShot, Mathf.RoundToInt(value)); // Wide Shot 탄환 수를 증가시킨다.
+        Debug.Log("Wide Barrel Applied : Wide Shot Bullet Count +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyRapidBattery(float value) // Rapid Battery 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardCooldown(CardType.RapidShot, value); // Rapid Shot 쿨타임을 감소시킨다.
+        Debug.Log("Rapid Battery Applied : Rapid Shot Cooldown -" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyHeavyCore(float value) // Heavy Core 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardDamage(CardType.HeavyShot, Mathf.RoundToInt(value)); // Heavy Shot 데미지를 증가시킨다.
+        Debug.Log("Heavy Core Applied : Heavy Shot Damage +" + value); // 적용 로그를 출력한다.
+    }
     private void ApplyBulletEngine(float value) // Bullet Engine 효과를 적용한다.
     {
         if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
@@ -165,4 +243,6 @@ public class RelicManager : MonoBehaviour
 
         relicSlotUI.UpdateRelicSlots(ownedRelics); // 유물 UI에 보유 유물 목록을 전달한다.
     }
+
+
 }

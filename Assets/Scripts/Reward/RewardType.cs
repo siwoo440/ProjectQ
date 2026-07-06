@@ -20,5 +20,11 @@ public enum RewardType
     RelicManaStone, // Mana Stone 유물 획득 보상이다.
     RelicShieldFragment, // Shield Fragment 유물 획득 보상이다.
     RelicQuickGear, // Quick Gear 유물 획득 보상이다.
-    RelicBulletEngine // Bullet Engine 유물 획득 보상이다.
+    RelicBulletEngine, // Bullet Engine 유물 획득 보상이다.
+
+    RelicPixelLens, // Pixel Lens 유물 획득 보상이다.
+    RelicFocusLens, // Focus Lens 유물 획득 보상이다.
+    RelicWideBarrel, // Wide Barrel 유물 획득 보상이다.
+    RelicRapidBattery, // Rapid Battery 유물 획득 보상이다.
+    RelicHeavyCore // Heavy Core 유물 획득 보상이다.
 }
