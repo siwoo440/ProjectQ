@@ -7,6 +7,7 @@ public class RewardManager : MonoBehaviour
     public RewardButton rewardButton01; // 첫 번째 보상 버튼을 저장한다.
     public RewardButton rewardButton02; // 두 번째 보상 버튼을 저장한다.
     public RewardButton rewardButton03; // 세 번째 보상 버튼을 저장한다.
+    public NextBattleUI nextBattleUI; // 다음 전투 버튼 UI를 저장한다.
 
     [Header("Target References")]
     public CardManager cardManager; // 카드 수치를 변경할 CardManager를 저장한다.
@@ -47,33 +48,21 @@ public class RewardManager : MonoBehaviour
         }
     }
 
-    private void SetupFixedRewards() // 오늘 사용할 고정 보상 3개를 설정한다.
+    private void SetupFixedRewards() // 고정 보상 3개를 설정한다.
     {
         if (rewardButton01 != null) // 첫 번째 보상 버튼이 연결되어 있는지 확인한다.
         {
-            rewardButton01.SetReward(
-                RewardButton.RewardType.PixelShotDamageUp,
-                "Pixel Shot Upgrade",
-                "Pixel Shot Damage +5"
-            ); // 첫 번째 보상을 설정한다.
+            rewardButton01.SetReward(RewardButton.RewardType.PixelShotDamageUp, "Pixel Shot Upgrade", "Pixel Shot Damage +5"); // 첫 번째 보상을 설정한다.
         }
 
         if (rewardButton02 != null) // 두 번째 보상 버튼이 연결되어 있는지 확인한다.
         {
-            rewardButton02.SetReward(
-                RewardButton.RewardType.PixelShotCooldownDown,
-                "Quick Reload",
-                "Pixel Shot Cooldown -0.1s"
-            ); // 두 번째 보상을 설정한다.
+            rewardButton02.SetReward(RewardButton.RewardType.PixelShotCooldownDown, "Quick Reload", "Pixel Shot Cooldown -0.1s"); // 두 번째 보상을 설정한다.
         }
 
         if (rewardButton03 != null) // 세 번째 보상 버튼이 연결되어 있는지 확인한다.
         {
-            rewardButton03.SetReward(
-                RewardButton.RewardType.MaxManaUp,
-                "Mana Expansion",
-                "Max MP +1"
-            ); // 세 번째 보상을 설정한다.
+            rewardButton03.SetReward(RewardButton.RewardType.MaxManaUp, "Mana Expansion", "Max MP +1"); // 세 번째 보상을 설정한다.
         }
     }
 
@@ -83,6 +72,15 @@ public class RewardManager : MonoBehaviour
         HideRewardPanel(); // 보상 패널을 숨긴다.
 
         Time.timeScale = 1f; // 게임 시간을 다시 흐르게 한다.
+
+        if (nextBattleUI != null) // 다음 전투 UI가 연결되어 있는지 확인한다.
+        {
+            nextBattleUI.Show(); // Next Battle 버튼을 표시한다.
+        }
+        else // 다음 전투 UI가 없는 경우를 처리한다.
+        {
+            Debug.LogWarning("NextBattleUI is not assigned."); // 경고 로그를 출력한다.
+        }
 
         Debug.Log("Reward Selected"); // 보상 선택 완료 로그를 출력한다.
     }

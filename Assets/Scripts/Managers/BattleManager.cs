@@ -19,42 +19,88 @@ public class BattleManager : MonoBehaviour
     [Header("Battle State")]
     public BattleState currentState = BattleState.Ready; // 현재 전투 상태를 저장한다.
     public int aliveEnemyCount = 0; // 현재 살아있는 적 수를 저장한다.
+    public int currentBattleNumber = 0; // 현재 전투 번호를 저장한다.
 
-    private void Start() // 게임 시작 시 전투를 시작한다.
+    private Coroutine clearRoutine; // 클리어 처리 코루틴을 저장한다.
+
+    private void Start() // 시작 시 UI만 정리한다.
     {
         if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
         {
             battleClearUI.Hide(); // 시작 시 클리어 UI를 숨긴다.
         }
-
-        StartBattle(); // 전투를 시작한다.
     }
 
-    public void StartBattle() // 전투 시작 처리를 실행한다.
+    public void StartBattle(int battleNumber) // 지정된 전투 번호로 전투를 시작한다.
     {
-        if (currentState == BattleState.Battle) return; // 이미 전투 중이면 다시 시작하지 않는다.
+        currentBattleNumber = battleNumber; // 현재 전투 번호를 저장한다.
+
+        ResetBattleState(); // 전투 상태를 초기화한다.
+        ClearOldBattleObjects(); // 이전 전투에서 남은 적과 탄환을 정리한다.
 
         currentState = BattleState.Battle; // 현재 상태를 전투 중으로 변경한다.
         aliveEnemyCount = 0; // 살아있는 적 수를 초기화한다.
 
-        Debug.Log("Battle Start"); // 전투 시작 로그를 출력한다.
-
-        if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
-        {
-            battleClearUI.Hide(); // 전투 시작 시 클리어 UI를 숨긴다.
-        }
+        Debug.Log("Battle Start : " + currentBattleNumber); // 전투 시작 로그를 출력한다.
 
         if (enemySpawner == null) // 적 생성 관리자가 없는지 확인한다.
         {
-            Debug.LogError("EnemySpawner가 BattleManager에 연결되지 않았습니다."); // 오류 로그를 출력한다.
+            Debug.LogError("EnemySpawner is not assigned."); // 오류 로그를 출력한다.
             return; // 전투 시작 처리를 중단한다.
         }
 
-        enemySpawner.SpawnEnemies(this); // 적 생성 관리자에게 적 생성을 요청한다.
+        enemySpawner.SpawnEnemies(this, currentBattleNumber); // 전투 번호에 맞게 적 생성을 요청한다.
 
         if (aliveEnemyCount <= 0) // 생성된 적이 없는지 확인한다.
         {
-            Debug.LogWarning("생성된 적이 없습니다."); // 경고 로그를 출력한다.
+            Debug.LogWarning("No enemies were spawned."); // 경고 로그를 출력한다.
+        }
+    }
+
+    private void ResetBattleState() // 전투 시작 전 UI와 상태를 정리한다.
+    {
+        currentState = BattleState.Ready; // 상태를 준비 상태로 변경한다.
+
+        if (clearRoutine != null) // 이전 클리어 코루틴이 있는지 확인한다.
+        {
+            StopCoroutine(clearRoutine); // 이전 클리어 코루틴을 중지한다.
+            clearRoutine = null; // 코루틴 참조를 비운다.
+        }
+
+        if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
+        {
+            battleClearUI.Hide(); // 클리어 UI를 숨긴다.
+        }
+
+        if (rewardManager != null) // 보상 관리자가 연결되어 있는지 확인한다.
+        {
+            rewardManager.HideRewardPanel(); // 보상 패널을 숨긴다.
+        }
+
+        Time.timeScale = 1f; // 혹시 멈춰 있던 게임 시간을 다시 흐르게 한다.
+    }
+
+    private void ClearOldBattleObjects() // 이전 전투에서 남은 오브젝트를 정리한다.
+    {
+        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None); // 씬에 남아 있는 적을 모두 찾는다.
+
+        for (int i = 0; i < enemies.Length; i++) // 남은 적 수만큼 반복한다.
+        {
+            Destroy(enemies[i].gameObject); // 남은 적을 삭제한다.
+        }
+
+        Bullet[] playerBullets = FindObjectsByType<Bullet>(FindObjectsSortMode.None); // 씬에 남아 있는 플레이어 탄환을 모두 찾는다.
+
+        for (int i = 0; i < playerBullets.Length; i++) // 남은 플레이어 탄환 수만큼 반복한다.
+        {
+            Destroy(playerBullets[i].gameObject); // 남은 플레이어 탄환을 삭제한다.
+        }
+
+        EnemyBullet[] enemyBullets = FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None); // 씬에 남아 있는 적 탄환을 모두 찾는다.
+
+        for (int i = 0; i < enemyBullets.Length; i++) // 남은 적 탄환 수만큼 반복한다.
+        {
+            Destroy(enemyBullets[i].gameObject); // 남은 적 탄환을 삭제한다.
         }
     }
 
@@ -91,9 +137,9 @@ public class BattleManager : MonoBehaviour
     {
         currentState = BattleState.Clear; // 현재 상태를 클리어로 변경한다.
 
-        Debug.Log("Battle Clear"); // 전투 클리어 로그를 출력한다.
+        Debug.Log("Battle Clear : " + currentBattleNumber); // 전투 클리어 로그를 출력한다.
 
-        StartCoroutine(ClearBattleRoutine()); // 클리어 연출과 보상 표시를 순서대로 실행한다.
+        clearRoutine = StartCoroutine(ClearBattleRoutine()); // 클리어 연출과 보상 표시를 순서대로 실행한다.
     }
 
     private IEnumerator ClearBattleRoutine() // 전투 클리어 후 보상 UI를 표시한다.
@@ -111,7 +157,7 @@ public class BattleManager : MonoBehaviour
         }
         else // 보상 관리자가 없는 경우를 처리한다.
         {
-            Debug.LogWarning("RewardManager가 연결되지 않았습니다."); // 경고 로그를 출력한다.
+            Debug.LogWarning("RewardManager is not assigned."); // 경고 로그를 출력한다.
         }
     }
 }

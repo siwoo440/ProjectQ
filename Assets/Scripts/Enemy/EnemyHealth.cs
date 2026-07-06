@@ -19,6 +19,14 @@ public class EnemyHealth : MonoBehaviour
         battleManager = manager; // 전달받은 BattleManager를 저장한다.
     }
 
+    public void SetMaxHealth(int newMaxHealth) // 외부에서 적 최대 체력을 설정한다.
+    {
+        maxHealth = newMaxHealth; // 최대 체력을 새 값으로 설정한다.
+        currentHealth = maxHealth; // 현재 체력도 최대 체력으로 설정한다.
+
+        Debug.Log(gameObject.name + " Max HP : " + maxHealth); // 설정된 체력을 로그로 출력한다.
+    }
+
     public void TakeDamage(int damage) // 적이 피해를 받는다.
     {
         if (isDead) return; // 이미 죽은 적이면 피해 처리를 하지 않는다.
