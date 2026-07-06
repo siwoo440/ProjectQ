@@ -88,14 +88,12 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    private void SelectCard(int index) // 지정한 번호의 카드를 선택한다.
+    private void SelectCard(int index) // 카드 선택을 처리한다.
     {
-        if (index < 0 || index >= ownedCards.Count) return; // 범위 밖이면 실행하지 않는다.
+        if (index < 0 || index >= ownedCards.Count) return; // 선택 번호가 올바르지 않으면 실행하지 않는다.
 
-        selectedCardIndex = index; // 선택 카드 번호를 변경한다.
+        selectedCardIndex = index; // 선택한 카드 번호를 저장한다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
-
-        Debug.Log("Selected Card : " + ownedCards[selectedCardIndex].cardName); // 선택한 카드 이름을 로그로 출력한다.
     }
 
     private void SelectNextCard() // 다음 카드를 선택한다.
@@ -284,53 +282,41 @@ public class CardManager : MonoBehaviour
     {
         if (cardSlotUI == null) return; // 카드 슬롯 UI가 없으면 실행하지 않는다.
 
-        cardSlotUI.UpdateCardSlots(ownedCards, selectedCardIndex); // 카드 슬롯 UI에 현재 카드 정보를 전달한다.
+        cardSlotUI.UpdateCardSlots(ownedCards, selectedCardIndex, bonusBulletDamage, bonusBulletSpeed, cooldownReduction); // 보너스 수치를 포함하여 카드 UI를 갱신한다.
     }
 
-    public void IncreaseBulletDamage(int amount) // 보상으로 카드 탄환 피해량을 증가시킨다.
+    public void IncreaseBulletDamage(int value) // 모든 카드 추가 데미지를 증가시킨다.
     {
-        bonusBulletDamage += amount; // 추가 피해량을 증가시킨다.
-
-        Debug.Log("Bonus Bullet Damage : " + bonusBulletDamage); // 추가 피해량을 로그로 출력한다.
+        bonusBulletDamage += value; // 추가 데미지 보너스를 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
     }
 
-    public void ReduceCooldown(float amount) // 보상으로 카드 쿨타임을 감소시킨다.
+    public void ReduceCooldown(float value) // 모든 카드 쿨타임 감소량을 증가시킨다.
     {
-        cooldownReduction += amount; // 쿨타임 감소량을 증가시킨다.
-        cooldownReduction = Mathf.Min(cooldownReduction, 1.5f); // 쿨타임 감소량이 너무 커지지 않게 제한한다.
-
-        Debug.Log("Cooldown Reduction : " + cooldownReduction); // 쿨타임 감소량을 로그로 출력한다.
+        cooldownReduction += value; // 쿨타임 감소량을 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
     }
 
-    public void IncreaseBulletSpeed(float amount) // 보상으로 카드 탄환 속도를 증가시킨다.
+    public void IncreaseBulletSpeed(float value) // 모든 카드 탄환 속도를 증가시킨다.
     {
-        bonusBulletSpeed += amount; // 추가 탄환 속도를 증가시킨다.
-
-        Debug.Log("Bonus Bullet Speed : " + bonusBulletSpeed); // 추가 탄환 속도를 로그로 출력한다.
+        bonusBulletSpeed += value; // 추가 탄환 속도 보너스를 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
     }
-    public void AddCardByType(CardType cardType) // 카드 종류에 따라 새 카드를 추가한다.
+    public void AddCardByType(CardType cardType) // 카드 타입에 따라 새 카드를 추가한다.
     {
         if (HasCard(cardType)) // 이미 같은 카드를 가지고 있는지 확인한다.
         {
-            UpgradeCardDamage(cardType, 5); // 이미 가진 카드라면 피해량을 강화한다.
-            Debug.Log("Duplicate Card Converted To Upgrade : " + cardType); // 중복 카드 변환 로그를 출력한다.
-            return; // 새 카드 추가를 중단한다.
+            UpgradeCardDamage(cardType, 5); // 중복 카드는 데미지 강화로 처리한다.
+            return; // 카드 추가를 종료한다.
         }
 
-        CardData newCard = CreateCardByType(cardType); // 카드 종류에 맞는 카드 데이터를 생성한다.
+        CardData newCard = CreateCardByType(cardType); // 카드 타입에 맞는 새 카드 데이터를 만든다.
 
-        if (newCard == null) // 생성된 카드가 없는지 확인한다.
-        {
-            Debug.LogError("CardData is null : " + cardType); // 오류 로그를 출력한다.
-            return; // 카드 추가를 중단한다.
-        }
+        if (newCard == null) return; // 새 카드 데이터가 없으면 실행하지 않는다.
 
         ownedCards.Add(newCard); // 보유 카드 목록에 새 카드를 추가한다.
-        selectedCardIndex = ownedCards.Count - 1; // 새로 얻은 카드를 선택 상태로 만든다.
-
+        selectedCardIndex = ownedCards.Count - 1; // 새로 얻은 카드를 선택한다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
-
-        Debug.Log("New Card Added : " + newCard.cardName); // 새 카드 획득 로그를 출력한다.
     }
 
     public bool HasCard(CardType cardType) // 특정 카드를 이미 가지고 있는지 확인한다.
@@ -369,57 +355,34 @@ public class CardManager : MonoBehaviour
         return null; // 해당하는 카드가 없으면 null을 반환한다.
     }
 
-    public void UpgradeCardDamage(CardType cardType, int amount) // 특정 카드의 피해량을 증가시킨다.
+    public void UpgradeCardDamage(CardType cardType, int value) // 특정 카드 데미지를 강화한다.
     {
-        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
 
-        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
-        {
-            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
-            return; // 강화를 중단한다.
-        }
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
 
-        targetCard.bulletDamage += amount; // 카드 피해량을 증가시킨다.
-
+        cardData.bulletDamage += value; // 카드 데미지를 증가시킨다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
-
-        Debug.Log(targetCard.cardName + " Damage Up : " + targetCard.bulletDamage); // 강화 결과를 로그로 출력한다.
     }
 
-    public void UpgradeCardCooldown(CardType cardType, float amount) // 특정 카드의 쿨타임을 감소시킨다.
+    public void UpgradeCardCooldown(CardType cardType, float value) // 특정 카드 쿨타임을 감소시킨다.
     {
-        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
 
-        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
-        {
-            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
-            return; // 강화를 중단한다.
-        }
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
 
-        targetCard.cooldown -= amount; // 카드 쿨타임을 감소시킨다.
-        targetCard.cooldown = Mathf.Max(targetCard.cooldown, 0.1f); // 쿨타임이 너무 낮아지지 않게 제한한다.
-
+        cardData.cooldown = Mathf.Max(0.05f, cardData.cooldown - value); // 카드 쿨타임을 감소시킨다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
-
-        Debug.Log(targetCard.cardName + " Cooldown : " + targetCard.cooldown); // 강화 결과를 로그로 출력한다.
     }
 
-    public void UpgradeCardBulletCount(CardType cardType, int amount) // 특정 카드의 탄환 수를 증가시킨다.
+    public void UpgradeCardBulletCount(CardType cardType, int value) // 특정 카드 탄환 수를 강화한다.
     {
-        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
 
-        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
-        {
-            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
-            return; // 강화를 중단한다.
-        }
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
 
-        targetCard.bulletCount += amount; // 카드 탄환 수를 증가시킨다.
-        targetCard.bulletCount = Mathf.Max(targetCard.bulletCount, 1); // 탄환 수가 최소 1 이상이 되도록 제한한다.
-
+        cardData.bulletCount += value; // 카드 탄환 수를 증가시킨다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
-
-        Debug.Log(targetCard.cardName + " Bullet Count : " + targetCard.bulletCount); // 강화 결과를 로그로 출력한다.
     }
 
     private CardData FindCard(CardType cardType) // 보유 카드 목록에서 특정 카드를 찾는다.

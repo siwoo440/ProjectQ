@@ -32,14 +32,13 @@ public class RewardManager : MonoBehaviour
     private void Start() // 시작 시 보상 UI를 숨긴다.
     {
         HideRewardPanel(); // 보상 패널을 숨긴다.
-        ConnectButtons(); // 보상 버튼에 RewardManager를 연결한다.
     }
 
     private void ConnectButtons() // 각 보상 버튼에 RewardManager를 연결한다.
     {
-        if (rewardButton01 != null) rewardButton01.rewardManager = this; // 첫 번째 버튼에 RewardManager를 연결한다.
-        if (rewardButton02 != null) rewardButton02.rewardManager = this; // 두 번째 버튼에 RewardManager를 연결한다.
-        if (rewardButton03 != null) rewardButton03.rewardManager = this; // 세 번째 버튼에 RewardManager를 연결한다.
+        if (rewardButton01 != null) rewardButton01.Setup(currentRewards[0], this, 0); // 첫 번째 버튼에 보상을 설정한다.
+        if (rewardButton02 != null) rewardButton02.Setup(currentRewards[1], this, 1); // 두 번째 버튼에 보상을 설정한다.
+        if (rewardButton03 != null) rewardButton03.Setup(currentRewards[2], this, 2); // 세 번째 버튼에 보상을 설정한다.
     }
 
     private void CreateRewardPool() // 전체 보상 후보를 생성한다.
@@ -317,13 +316,21 @@ public class RewardManager : MonoBehaviour
             return; // 버튼 적용을 중단한다.
         }
 
-        if (rewardButton01 != null) rewardButton01.SetReward(currentRewards[0]); // 첫 번째 버튼에 보상을 설정한다.
-        if (rewardButton02 != null) rewardButton02.SetReward(currentRewards[1]); // 두 번째 버튼에 보상을 설정한다.
-        if (rewardButton03 != null) rewardButton03.SetReward(currentRewards[2]); // 세 번째 버튼에 보상을 설정한다.
+        if (rewardButton01 != null) rewardButton01.Setup(currentRewards[0], this, 0); // 첫 번째 버튼에 보상을 설정한다.
+        if (rewardButton02 != null) rewardButton02.Setup(currentRewards[1], this, 1); // 두 번째 버튼에 보상을 설정한다.
+        if (rewardButton03 != null) rewardButton03.Setup(currentRewards[2], this, 2); // 세 번째 버튼에 보상을 설정한다.
     }
 
-    public void SelectReward(RewardData rewardData) // 선택된 보상을 적용한다.
+    public void SelectReward(int rewardIndex) // 선택한 보상 번호를 받아 보상을 적용한다.
     {
+        if (rewardIndex < 0 || rewardIndex >= currentRewards.Count) // 보상 번호가 올바른 범위인지 확인한다.
+        {
+            Debug.LogError("Invalid reward index : " + rewardIndex); // 잘못된 보상 번호 로그를 출력한다.
+            return; // 보상 선택을 중단한다.
+        }
+
+        RewardData rewardData = currentRewards[rewardIndex]; // 선택한 번호에 해당하는 보상 데이터를 가져온다.
+
         if (rewardData == null) // 보상 데이터가 없는지 확인한다.
         {
             Debug.LogError("Selected reward is null."); // 오류 로그를 출력한다.
