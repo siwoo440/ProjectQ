@@ -68,6 +68,12 @@ public class BattleManager : MonoBehaviour
         {
             Debug.LogWarning("No enemies were spawned."); // 경고 로그를 출력한다.
         }
+
+        if (battleInfoUI != null) // 전투 정보 UI가 연결되어 있는지 확인한다.
+        {
+            battleInfoUI.SetBattleInfo(currentBattleNumber, aliveEnemyCount); // 전투 번호와 남은 적 수를 갱신한다.
+        }
+
     }
 
     private void ResetBattleState() // 전투 시작 전 UI와 상태를 정리한다.
@@ -129,6 +135,11 @@ public class BattleManager : MonoBehaviour
         aliveEnemyCount += 1; // 살아있는 적 수를 1 증가시킨다.
         enemyHealth.SetBattleManager(this); // 적에게 BattleManager를 알려준다.
 
+        if (battleInfoUI != null) // 전투 정보 UI가 연결되어 있는지 확인한다.
+        {
+            battleInfoUI.SetBattleInfo(currentBattleNumber, aliveEnemyCount); // 전투 번호와 남은 적 수를 갱신한다.
+        }
+
         Debug.Log("Enemy Registered. Alive Enemy Count : " + aliveEnemyCount); // 현재 적 수를 로그로 출력한다.
     }
 
@@ -138,6 +149,11 @@ public class BattleManager : MonoBehaviour
 
         aliveEnemyCount -= 1; // 살아있는 적 수를 1 감소시킨다.
         aliveEnemyCount = Mathf.Max(aliveEnemyCount, 0); // 적 수가 0 아래로 내려가지 않게 한다.
+
+        if (battleInfoUI != null) // 전투 정보 UI가 연결되어 있는지 확인한다.
+        {
+            battleInfoUI.SetBattleInfo(currentBattleNumber, aliveEnemyCount); // 전투 번호와 남은 적 수를 갱신한다.
+        }
 
         Debug.Log("Enemy Dead. Alive Enemy Count : " + aliveEnemyCount); // 남은 적 수를 로그로 출력한다.
 

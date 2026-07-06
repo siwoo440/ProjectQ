@@ -6,10 +6,11 @@ public class BattleProgressManager : MonoBehaviour
     public BattleManager battleManager; // 실제 전투를 시작할 BattleManager를 저장한다.
     public NextBattleUI nextBattleUI; // 다음 전투 버튼 UI를 저장한다.
     public PlayerStats playerStats; // 플레이어 스탯을 저장한다.
+    public BattleClearUI battleClearUI; // 프로토타입 클리어 문구를 표시할 UI를 저장한다.
 
     [Header("Progress")]
     public int currentBattleNumber = 0; // 현재 전투 번호를 저장한다.
-    public int maxBattleNumber = 5; // 임시 최대 전투 수를 저장한다.
+    public int maxBattleNumber = 6; // 1차 프로토타입 최대 전투 수를 저장한다.
 
     private void Start() // 게임 시작 시 첫 번째 전투를 시작한다.
     {
@@ -29,9 +30,9 @@ public class BattleProgressManager : MonoBehaviour
             return; // 전투 시작을 중단한다.
         }
 
-        if (currentBattleNumber >= maxBattleNumber) // 최대 전투 수에 도달했는지 확인한다.
+        if (currentBattleNumber >= maxBattleNumber) // 최대 전투 수를 이미 클리어했는지 확인한다.
         {
-            Debug.Log("All Battles Cleared"); // 모든 전투 클리어 로그를 출력한다.
+            ShowPrototypeClear(); // 프로토타입 클리어 처리를 실행한다.
             return; // 더 이상 전투를 시작하지 않는다.
         }
 
@@ -66,5 +67,22 @@ public class BattleProgressManager : MonoBehaviour
         Debug.Log("Retry Game"); // 재시작 로그를 출력한다.
 
         StartNextBattle(); // Battle 1부터 다시 시작한다.
+    }
+
+    private void ShowPrototypeClear() // 1차 프로토타입 클리어 처리를 실행한다.
+    {
+        Time.timeScale = 1f; // 게임 시간을 정상 속도로 유지한다.
+
+        if (nextBattleUI != null) // NextBattleUI가 연결되어 있는지 확인한다.
+        {
+            nextBattleUI.Hide(); // Next Battle 버튼을 숨긴다.
+        }
+
+        if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
+        {
+            battleClearUI.Show("PROTOTYPE CLEAR"); // 프로토타입 클리어 문구를 표시한다.
+        }
+
+        Debug.Log("Prototype Clear"); // 프로토타입 클리어 로그를 출력한다.
     }
 }
