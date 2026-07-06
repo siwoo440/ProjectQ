@@ -7,6 +7,7 @@ public class BattleProgressManager : MonoBehaviour
     public NextBattleUI nextBattleUI; // 다음 전투 버튼 UI를 저장한다.
     public PlayerStats playerStats; // 플레이어 스탯을 저장한다.
     public BattleClearUI battleClearUI; // 프로토타입 클리어 문구를 표시할 UI를 저장한다.
+    public RelicManager relicManager; // 전투 시작 시 유물 효과를 적용할 RelicManager를 저장한다.
 
     [Header("Progress")]
     public int currentBattleNumber = 0; // 현재 전투 번호를 저장한다.
@@ -39,6 +40,16 @@ public class BattleProgressManager : MonoBehaviour
         currentBattleNumber += 1; // 전투 번호를 1 증가시킨다.
 
         Debug.Log("Start Battle : " + currentBattleNumber); // 시작할 전투 번호를 로그로 출력한다.
+
+        if (relicManager == null) // RelicManager가 연결되지 않았는지 확인한다.
+        {
+            relicManager = FindFirstObjectByType<RelicManager>(); // 씬에서 RelicManager를 찾는다.
+        }
+
+        if (relicManager != null) // RelicManager가 있는지 확인한다.
+        {
+            relicManager.ApplyRelicsOnBattleStart(); // 전투 시작 유물 효과를 적용한다.
+        }
 
         battleManager.StartBattle(currentBattleNumber); // BattleManager에게 해당 번호의 전투 시작을 요청한다.
     }

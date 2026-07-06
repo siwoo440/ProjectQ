@@ -13,6 +13,7 @@ public class RewardManager : MonoBehaviour
     [Header("Target References")]
     public CardManager cardManager; // 카드 수치를 변경할 CardManager를 저장한다.
     public PlayerStats playerStats; // 플레이어 수치를 변경할 PlayerStats를 저장한다.
+    public RelicManager relicManager; // 유물 획득을 처리할 RelicManager를 저장한다.
 
     private List<RewardData> rewardPool = new List<RewardData>(); // 전체 보상 후보를 저장한다.
     private List<RewardData> currentRewards = new List<RewardData>(); // 현재 화면에 표시된 보상을 저장한다.
@@ -48,6 +49,7 @@ public class RewardManager : MonoBehaviour
         rewardPool.Add(new RewardData("Triple Focus", "All Card Damage +10", RewardType.PixelShotDamageUp, RewardRarity.Rare, 10f)); // 강한 모든 카드 피해량 증가 보상을 추가한다.
         rewardPool.Add(new RewardData("Mana Recovery", "MP Regen +0.5", RewardType.ManaRegenUp, RewardRarity.Rare, 0.5f)); // MP 회복 증가 보상을 추가한다.
         rewardPool.Add(new RewardData("Emergency Guard", "Shield +2", RewardType.ShieldUp, RewardRarity.Rare, 2f)); // 강한 보호막 보상을 추가한다.
+
         rewardPool.Add(new RewardData("New Card: Rapid Shot", "Add Rapid Shot to your deck", RewardType.NewRapidShot, RewardRarity.Rare, 0f)); // Rapid Shot 획득 보상을 추가한다.
         rewardPool.Add(new RewardData("New Card: Heavy Shot", "Add Heavy Shot to your deck", RewardType.NewHeavyShot, RewardRarity.Rare, 0f)); // Heavy Shot 획득 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Pixel Shot", "Pixel Shot Damage +3", RewardType.UpgradePixelShotDamage, RewardRarity.Common, 3f)); // Pixel Shot 강화 보상을 추가한다.
@@ -55,6 +57,12 @@ public class RewardManager : MonoBehaviour
         rewardPool.Add(new RewardData("Upgrade: Wide Shot", "Wide Shot Bullet Count +1", RewardType.UpgradeWideShotBulletCount, RewardRarity.Rare, 1f)); // Wide Shot 탄환 수 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Rapid Shot", "Rapid Shot Cooldown -0.05s", RewardType.UpgradeRapidShotCooldown, RewardRarity.Rare, 0.05f)); // Rapid Shot 쿨타임 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Heavy Shot", "Heavy Shot Damage +15", RewardType.UpgradeHeavyShotDamage, RewardRarity.Epic, 15f)); // Heavy Shot 피해량 강화 보상을 추가한다.
+
+        rewardPool.Add(new RewardData("Relic: Blood Core", "All Card Damage +2", RewardType.RelicBloodCore, RewardRarity.Rare, 2f)); // Blood Core 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Mana Stone", "MP Regen +0.3", RewardType.RelicManaStone, RewardRarity.Rare, 0.3f)); // Mana Stone 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Shield Fragment", "Gain Shield +1 at battle start", RewardType.RelicShieldFragment, RewardRarity.Rare, 1f)); // Shield Fragment 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Quick Gear", "All Card Cooldown -0.05s", RewardType.RelicQuickGear, RewardRarity.Rare, 0.05f)); // Quick Gear 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Bullet Engine", "All Card Bullet Speed +0.5", RewardType.RelicBulletEngine, RewardRarity.Rare, 0.5f)); // Bullet Engine 유물 보상을 추가한다.
     }
 
     public void ShowRewardPanel() // 보상 패널을 표시한다.
@@ -152,6 +160,21 @@ public class RewardManager : MonoBehaviour
 
             case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 강화 보상인지 확인한다.
                 return cardManager.HasCard(CardType.HeavyShot); // Heavy Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.RelicBloodCore: // Blood Core 유물 보상인지 확인한다.
+                return relicManager == null || relicManager.HasRelic(RelicType.BloodCore) == false; // Blood Core가 없을 때만 등장한다.
+
+            case RewardType.RelicManaStone: // Mana Stone 유물 보상인지 확인한다.
+                return relicManager == null || relicManager.HasRelic(RelicType.ManaStone) == false; // Mana Stone이 없을 때만 등장한다.
+
+            case RewardType.RelicShieldFragment: // Shield Fragment 유물 보상인지 확인한다.
+                return relicManager == null || relicManager.HasRelic(RelicType.ShieldFragment) == false; // Shield Fragment가 없을 때만 등장한다.
+
+            case RewardType.RelicQuickGear: // Quick Gear 유물 보상인지 확인한다.
+                return relicManager == null || relicManager.HasRelic(RelicType.QuickGear) == false; // Quick Gear가 없을 때만 등장한다.
+
+            case RewardType.RelicBulletEngine: // Bullet Engine 유물 보상인지 확인한다.
+                return relicManager == null || relicManager.HasRelic(RelicType.BulletEngine) == false; // Bullet Engine이 없을 때만 등장한다.
 
             default: // 일반 스탯 보상인 경우다.
                 return true; // 일반 보상은 항상 등장 가능하다.
@@ -272,7 +295,27 @@ public class RewardManager : MonoBehaviour
                 ApplyCardDamageUpgrade(CardType.HeavyShot, rewardData.value); // Heavy Shot 피해량을 강화한다.
                 break; // switch문을 종료한다.
 
-            default: // 정의되지 않은 보상 타입인 경우를 처리한다.
+            case RewardType.RelicBloodCore: // Blood Core 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Blood Core", "All Card Damage +2", RelicType.BloodCore, rewardData.value)); // Blood Core 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicManaStone: // Mana Stone 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Mana Stone", "MP Regen +0.3", RelicType.ManaStone, rewardData.value)); // Mana Stone 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicShieldFragment: // Shield Fragment 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Shield Fragment", "Gain Shield +1 at battle start", RelicType.ShieldFragment, rewardData.value)); // Shield Fragment 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicQuickGear: // Quick Gear 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Quick Gear", "All Card Cooldown -0.05s", RelicType.QuickGear, rewardData.value)); // Quick Gear 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicBulletEngine: // Bullet Engine 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Bullet Engine", "All Card Bullet Speed +0.5", RelicType.BulletEngine, rewardData.value)); // Bullet Engine 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            default: // 정의되지 않은 보상 타입인 경우다.
                 Debug.LogWarning("Unknown Reward Type : " + rewardData.rewardType); // 알 수 없는 보상 타입 로그를 출력한다.
                 break; // switch문을 종료한다.
         }
@@ -396,5 +439,21 @@ public class RewardManager : MonoBehaviour
         }
 
         cardManager.UpgradeCardBulletCount(cardType, Mathf.RoundToInt(value)); // 특정 카드 탄환 수를 증가시킨다.
+    }
+
+    private void ApplyRelicReward(RelicData relicData) // 유물 보상을 적용한다.
+    {
+        if (relicManager == null) // RelicManager가 연결되지 않았는지 확인한다.
+        {
+            relicManager = FindFirstObjectByType<RelicManager>(); // 씬에서 RelicManager를 찾는다.
+        }
+
+        if (relicManager == null) // 자동으로도 찾지 못했는지 확인한다.
+        {
+            Debug.LogError("RelicManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 유물 보상을 중단한다.
+        }
+
+        relicManager.AddRelic(relicData); // 유물을 획득 처리한다.
     }
 }

@@ -14,5 +14,11 @@ public enum RewardType
     UpgradeFocusShotDamage, // Focus Shot 피해량 강화 보상이다.
     UpgradeWideShotBulletCount, // Wide Shot 탄환 수 강화 보상이다.
     UpgradeRapidShotCooldown, // Rapid Shot 쿨타임 강화 보상이다.
-    UpgradeHeavyShotDamage // Heavy Shot 피해량 강화 보상이다.
+    UpgradeHeavyShotDamage, // Heavy Shot 피해량 강화 보상이다.
+
+    RelicBloodCore, // Blood Core 유물 획득 보상이다.
+    RelicManaStone, // Mana Stone 유물 획득 보상이다.
+    RelicShieldFragment, // Shield Fragment 유물 획득 보상이다.
+    RelicQuickGear, // Quick Gear 유물 획득 보상이다.
+    RelicBulletEngine // Bullet Engine 유물 획득 보상이다.
 }
