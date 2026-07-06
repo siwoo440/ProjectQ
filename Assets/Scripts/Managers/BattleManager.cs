@@ -15,6 +15,8 @@ public class BattleManager : MonoBehaviour
     public EnemySpawner enemySpawner; // 적 생성 관리자를 저장한다.
     public BattleClearUI battleClearUI; // 전투 클리어 UI를 저장한다.
     public RewardManager rewardManager; // 보상 관리자를 저장한다.
+    public GameOverUI gameOverUI; // 게임 오버 UI를 저장한다.
+    public BattleInfoUI battleInfoUI; // 전투 번호 UI를 저장한다.
 
     [Header("Battle State")]
     public BattleState currentState = BattleState.Ready; // 현재 전투 상태를 저장한다.
@@ -29,6 +31,11 @@ public class BattleManager : MonoBehaviour
         {
             battleClearUI.Hide(); // 시작 시 클리어 UI를 숨긴다.
         }
+
+        if (gameOverUI != null) // 게임 오버 UI가 연결되어 있는지 확인한다.
+        {
+            gameOverUI.Hide(); // 시작 시 게임 오버 UI를 숨긴다.
+        }
     }
 
     public void StartBattle(int battleNumber) // 지정된 전투 번호로 전투를 시작한다.
@@ -40,6 +47,12 @@ public class BattleManager : MonoBehaviour
 
         currentState = BattleState.Battle; // 현재 상태를 전투 중으로 변경한다.
         aliveEnemyCount = 0; // 살아있는 적 수를 초기화한다.
+
+        if (battleInfoUI != null) // 전투 번호 UI가 연결되어 있는지 확인한다.
+        {
+            battleInfoUI.Show(); // 전투 번호 UI를 표시한다.
+            battleInfoUI.SetBattleNumber(currentBattleNumber); // 현재 전투 번호를 표시한다.
+        }
 
         Debug.Log("Battle Start : " + currentBattleNumber); // 전투 시작 로그를 출력한다.
 
@@ -75,6 +88,11 @@ public class BattleManager : MonoBehaviour
         if (rewardManager != null) // 보상 관리자가 연결되어 있는지 확인한다.
         {
             rewardManager.HideRewardPanel(); // 보상 패널을 숨긴다.
+        }
+
+        if (gameOverUI != null) // 게임 오버 UI가 연결되어 있는지 확인한다.
+        {
+            gameOverUI.Hide(); // 게임 오버 UI를 숨긴다.
         }
 
         Time.timeScale = 1f; // 혹시 멈춰 있던 게임 시간을 다시 흐르게 한다.
@@ -126,6 +144,13 @@ public class BattleManager : MonoBehaviour
         CheckBattleClear(); // 전투 클리어 여부를 확인한다.
     }
 
+    public void OnPlayerDead() // 플레이어가 죽었을 때 호출된다.
+    {
+        if (currentState != BattleState.Battle) return; // 전투 중이 아니면 처리하지 않는다.
+
+        FailBattle(); // 전투 실패 처리를 실행한다.
+    }
+
     private void CheckBattleClear() // 전투 클리어 조건을 확인한다.
     {
         if (aliveEnemyCount > 0) return; // 살아있는 적이 남아 있으면 클리어하지 않는다.
@@ -159,5 +184,37 @@ public class BattleManager : MonoBehaviour
         {
             Debug.LogWarning("RewardManager is not assigned."); // 경고 로그를 출력한다.
         }
+    }
+
+    private void FailBattle() // 전투 실패 처리를 실행한다.
+    {
+        currentState = BattleState.Failed; // 현재 상태를 실패로 변경한다.
+
+        Debug.Log("Battle Failed : " + currentBattleNumber); // 전투 실패 로그를 출력한다.
+
+        if (clearRoutine != null) // 클리어 코루틴이 실행 중인지 확인한다.
+        {
+            StopCoroutine(clearRoutine); // 클리어 코루틴을 중지한다.
+            clearRoutine = null; // 코루틴 참조를 비운다.
+        }
+
+        ClearOldBattleObjects(); // 남아 있는 적과 탄환을 정리한다.
+
+        if (rewardManager != null) // 보상 관리자가 연결되어 있는지 확인한다.
+        {
+            rewardManager.HideRewardPanel(); // 보상 패널을 숨긴다.
+        }
+
+        if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
+        {
+            battleClearUI.Hide(); // 클리어 UI를 숨긴다.
+        }
+
+        if (gameOverUI != null) // 게임 오버 UI가 연결되어 있는지 확인한다.
+        {
+            gameOverUI.Show(); // 게임 오버 UI를 표시한다.
+        }
+
+        Time.timeScale = 0f; // 게임 오버 상태에서 게임 시간을 멈춘다.
     }
 }
