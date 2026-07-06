@@ -165,6 +165,14 @@ public class CardManager : MonoBehaviour
             case CardType.WideShot: // Wide Shot인지 확인한다.
                 FireSpread(cardData); // 넓은 퍼짐 탄환을 발사한다.
                 break; // switch문을 종료한다.
+
+            case CardType.RapidShot: // Rapid Shot인지 확인한다.
+                FireFocus(cardData); // 빠른 단일 탄환을 발사한다.
+                break; // switch문을 종료한다.
+
+            case CardType.HeavyShot: // Heavy Shot인지 확인한다.
+                FireFocus(cardData); // 강한 단일 탄환을 발사한다.
+                break; // switch문을 종료한다.
         }
     }
 
@@ -293,5 +301,131 @@ public class CardManager : MonoBehaviour
         bonusBulletSpeed += amount; // 추가 탄환 속도를 증가시킨다.
 
         Debug.Log("Bonus Bullet Speed : " + bonusBulletSpeed); // 추가 탄환 속도를 로그로 출력한다.
+    }
+    public void AddCardByType(CardType cardType) // 카드 종류에 따라 새 카드를 추가한다.
+    {
+        if (HasCard(cardType)) // 이미 같은 카드를 가지고 있는지 확인한다.
+        {
+            UpgradeCardDamage(cardType, 5); // 이미 가진 카드라면 피해량을 강화한다.
+            Debug.Log("Duplicate Card Converted To Upgrade : " + cardType); // 중복 카드 변환 로그를 출력한다.
+            return; // 새 카드 추가를 중단한다.
+        }
+
+        CardData newCard = CreateCardByType(cardType); // 카드 종류에 맞는 카드 데이터를 생성한다.
+
+        if (newCard == null) // 생성된 카드가 없는지 확인한다.
+        {
+            Debug.LogError("CardData is null : " + cardType); // 오류 로그를 출력한다.
+            return; // 카드 추가를 중단한다.
+        }
+
+        ownedCards.Add(newCard); // 보유 카드 목록에 새 카드를 추가한다.
+        selectedCardIndex = ownedCards.Count - 1; // 새로 얻은 카드를 선택 상태로 만든다.
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log("New Card Added : " + newCard.cardName); // 새 카드 획득 로그를 출력한다.
+    }
+
+    private bool HasCard(CardType cardType) // 특정 카드를 이미 가지고 있는지 확인한다.
+    {
+        for (int i = 0; i < ownedCards.Count; i++) // 보유 카드 수만큼 반복한다.
+        {
+            if (ownedCards[i].cardType == cardType) // 같은 카드 타입인지 확인한다.
+            {
+                return true; // 이미 가지고 있다고 반환한다.
+            }
+        }
+
+        return false; // 가지고 있지 않다고 반환한다.
+    }
+
+    private CardData CreateCardByType(CardType cardType) // 카드 종류에 맞는 카드 데이터를 생성한다.
+    {
+        switch (cardType) // 생성할 카드 종류를 확인한다.
+        {
+            case CardType.PixelShot: // Pixel Shot인지 확인한다.
+                return new CardData("Pixel Shot", CardType.PixelShot, 1f, 1f, 10, 10f, 3f, 3, 10f); // Pixel Shot 데이터를 반환한다.
+
+            case CardType.FocusShot: // Focus Shot인지 확인한다.
+                return new CardData("Focus Shot", CardType.FocusShot, 2f, 1.4f, 25, 14f, 3f, 1, 0f); // Focus Shot 데이터를 반환한다.
+
+            case CardType.WideShot: // Wide Shot인지 확인한다.
+                return new CardData("Wide Shot", CardType.WideShot, 2f, 1.8f, 8, 9f, 3f, 5, 15f); // Wide Shot 데이터를 반환한다.
+
+            case CardType.RapidShot: // Rapid Shot인지 확인한다.
+                return new CardData("Rapid Shot", CardType.RapidShot, 0.5f, 0.35f, 5, 13f, 2.5f, 1, 0f); // Rapid Shot 데이터를 반환한다.
+
+            case CardType.HeavyShot: // Heavy Shot인지 확인한다.
+                return new CardData("Heavy Shot", CardType.HeavyShot, 3f, 2.2f, 45, 8f, 4f, 1, 0f); // Heavy Shot 데이터를 반환한다.
+        }
+
+        return null; // 해당하는 카드가 없으면 null을 반환한다.
+    }
+
+    public void UpgradeCardDamage(CardType cardType, int amount) // 특정 카드의 피해량을 증가시킨다.
+    {
+        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
+        {
+            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
+            return; // 강화를 중단한다.
+        }
+
+        targetCard.bulletDamage += amount; // 카드 피해량을 증가시킨다.
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(targetCard.cardName + " Damage Up : " + targetCard.bulletDamage); // 강화 결과를 로그로 출력한다.
+    }
+
+    public void UpgradeCardCooldown(CardType cardType, float amount) // 특정 카드의 쿨타임을 감소시킨다.
+    {
+        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
+        {
+            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
+            return; // 강화를 중단한다.
+        }
+
+        targetCard.cooldown -= amount; // 카드 쿨타임을 감소시킨다.
+        targetCard.cooldown = Mathf.Max(targetCard.cooldown, 0.1f); // 쿨타임이 너무 낮아지지 않게 제한한다.
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(targetCard.cardName + " Cooldown : " + targetCard.cooldown); // 강화 결과를 로그로 출력한다.
+    }
+
+    public void UpgradeCardBulletCount(CardType cardType, int amount) // 특정 카드의 탄환 수를 증가시킨다.
+    {
+        CardData targetCard = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (targetCard == null) // 카드를 찾지 못했는지 확인한다.
+        {
+            Debug.LogWarning("Target Card Not Found : " + cardType); // 경고 로그를 출력한다.
+            return; // 강화를 중단한다.
+        }
+
+        targetCard.bulletCount += amount; // 카드 탄환 수를 증가시킨다.
+        targetCard.bulletCount = Mathf.Max(targetCard.bulletCount, 1); // 탄환 수가 최소 1 이상이 되도록 제한한다.
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(targetCard.cardName + " Bullet Count : " + targetCard.bulletCount); // 강화 결과를 로그로 출력한다.
+    }
+
+    private CardData FindCard(CardType cardType) // 보유 카드 목록에서 특정 카드를 찾는다.
+    {
+        for (int i = 0; i < ownedCards.Count; i++) // 보유 카드 수만큼 반복한다.
+        {
+            if (ownedCards[i].cardType == cardType) // 찾는 카드 타입과 같은지 확인한다.
+            {
+                return ownedCards[i]; // 찾은 카드를 반환한다.
+            }
+        }
+
+        return null; // 찾지 못하면 null을 반환한다.
     }
 }

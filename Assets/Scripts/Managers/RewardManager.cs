@@ -48,6 +48,13 @@ public class RewardManager : MonoBehaviour
         rewardPool.Add(new RewardData("Triple Focus", "All Card Damage +10", RewardType.PixelShotDamageUp, RewardRarity.Rare, 10f)); // 강한 모든 카드 피해량 증가 보상을 추가한다.
         rewardPool.Add(new RewardData("Mana Recovery", "MP Regen +0.5", RewardType.ManaRegenUp, RewardRarity.Rare, 0.5f)); // MP 회복 증가 보상을 추가한다.
         rewardPool.Add(new RewardData("Emergency Guard", "Shield +2", RewardType.ShieldUp, RewardRarity.Rare, 2f)); // 강한 보호막 보상을 추가한다.
+        rewardPool.Add(new RewardData("New Card: Rapid Shot", "Add Rapid Shot to your deck", RewardType.NewRapidShot, RewardRarity.Rare, 0f)); // Rapid Shot 획득 보상을 추가한다.
+        rewardPool.Add(new RewardData("New Card: Heavy Shot", "Add Heavy Shot to your deck", RewardType.NewHeavyShot, RewardRarity.Rare, 0f)); // Heavy Shot 획득 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Pixel Shot", "Pixel Shot Damage +3", RewardType.UpgradePixelShotDamage, RewardRarity.Common, 3f)); // Pixel Shot 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Focus Shot", "Focus Shot Damage +10", RewardType.UpgradeFocusShotDamage, RewardRarity.Rare, 10f)); // Focus Shot 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Wide Shot", "Wide Shot Bullet Count +1", RewardType.UpgradeWideShotBulletCount, RewardRarity.Rare, 1f)); // Wide Shot 탄환 수 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Rapid Shot", "Rapid Shot Cooldown -0.05s", RewardType.UpgradeRapidShotCooldown, RewardRarity.Rare, 0.05f)); // Rapid Shot 쿨타임 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Heavy Shot", "Heavy Shot Damage +15", RewardType.UpgradeHeavyShotDamage, RewardRarity.Epic, 15f)); // Heavy Shot 피해량 강화 보상을 추가한다.
     }
 
     public void ShowRewardPanel() // 보상 패널을 표시한다.
@@ -133,12 +140,12 @@ public class RewardManager : MonoBehaviour
     {
         switch (rewardData.rewardType) // 선택된 보상 종류를 확인한다.
         {
-            case RewardType.PixelShotDamageUp: // 픽셀 샷 데미지 증가 보상인지 확인한다.
-                ApplyPixelShotDamageUp(rewardData.value); // 픽셀 샷 데미지 증가를 적용한다.
+            case RewardType.PixelShotDamageUp: // 모든 카드 피해량 증가 보상인지 확인한다.
+                ApplyPixelShotDamageUp(rewardData.value); // 모든 카드 피해량 증가를 적용한다.
                 break; // switch문을 종료한다.
 
-            case RewardType.PixelShotCooldownDown: // 픽셀 샷 쿨타임 감소 보상인지 확인한다.
-                ApplyPixelShotCooldownDown(rewardData.value); // 픽셀 샷 쿨타임 감소를 적용한다.
+            case RewardType.PixelShotCooldownDown: // 모든 카드 쿨타임 감소 보상인지 확인한다.
+                ApplyPixelShotCooldownDown(rewardData.value); // 모든 카드 쿨타임 감소를 적용한다.
                 break; // switch문을 종료한다.
 
             case RewardType.MaxManaUp: // 최대 마나 증가 보상인지 확인한다.
@@ -153,12 +160,44 @@ public class RewardManager : MonoBehaviour
                 ApplyShieldUp(rewardData.value); // 보호막 증가를 적용한다.
                 break; // switch문을 종료한다.
 
-            case RewardType.BulletSpeedUp: // 탄환 속도 증가 보상인지 확인한다.
-                ApplyBulletSpeedUp(rewardData.value); // 탄환 속도 증가를 적용한다.
+            case RewardType.BulletSpeedUp: // 모든 카드 탄환 속도 증가 보상인지 확인한다.
+                ApplyBulletSpeedUp(rewardData.value); // 모든 카드 탄환 속도 증가를 적용한다.
                 break; // switch문을 종료한다.
 
             case RewardType.ManaRegenUp: // 마나 회복 증가 보상인지 확인한다.
                 ApplyManaRegenUp(rewardData.value); // 마나 회복 증가를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.NewRapidShot: // Rapid Shot 새 카드 보상인지 확인한다.
+                ApplyNewCard(CardType.RapidShot); // Rapid Shot을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.NewHeavyShot: // Heavy Shot 새 카드 보상인지 확인한다.
+                ApplyNewCard(CardType.HeavyShot); // Heavy Shot을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradePixelShotDamage: // Pixel Shot 피해량 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.PixelShot, rewardData.value); // Pixel Shot 피해량을 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeFocusShotDamage: // Focus Shot 피해량 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.FocusShot, rewardData.value); // Focus Shot 피해량을 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeWideShotBulletCount: // Wide Shot 탄환 수 강화 보상인지 확인한다.
+                ApplyCardBulletCountUpgrade(CardType.WideShot, rewardData.value); // Wide Shot 탄환 수를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeRapidShotCooldown: // Rapid Shot 쿨타임 강화 보상인지 확인한다.
+                ApplyCardCooldownUpgrade(CardType.RapidShot, rewardData.value); // Rapid Shot 쿨타임을 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 피해량 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.HeavyShot, rewardData.value); // Heavy Shot 피해량을 강화한다.
+                break; // switch문을 종료한다.
+
+            default: // 정의되지 않은 보상 타입인 경우를 처리한다.
+                Debug.LogWarning("Unknown Reward Type : " + rewardData.rewardType); // 알 수 없는 보상 타입 로그를 출력한다.
                 break; // switch문을 종료한다.
         }
     }
@@ -238,5 +277,48 @@ public class RewardManager : MonoBehaviour
         }
 
         playerStats.IncreaseManaRegen(value); // 마나 회복 속도를 증가시킨다.
+    }
+    private void ApplyNewCard(CardType cardType) // 새 카드 획득 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.AddCardByType(cardType); // CardManager에 새 카드 추가를 요청한다.
+    }
+
+    private void ApplyCardDamageUpgrade(CardType cardType, float value) // 특정 카드 피해량 강화 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardDamage(cardType, Mathf.RoundToInt(value)); // 특정 카드 피해량을 강화한다.
+    }
+
+    private void ApplyCardCooldownUpgrade(CardType cardType, float value) // 특정 카드 쿨타임 감소 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardCooldown(cardType, value); // 특정 카드 쿨타임을 감소시킨다.
+    }
+
+    private void ApplyCardBulletCountUpgrade(CardType cardType, float value) // 특정 카드 탄환 수 강화 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardBulletCount(cardType, Mathf.RoundToInt(value)); // 특정 카드 탄환 수를 증가시킨다.
     }
 }

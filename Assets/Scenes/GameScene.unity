@@ -1038,6 +1038,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 1258948019402942002, guid: d20cbbdf87abcbe4b84545d75ef7968d, type: 3}
+  enemyPrefabs:
+  - {fileID: 1258948019402942002, guid: d20cbbdf87abcbe4b84545d75ef7968d, type: 3}
+  - {fileID: 1258948019402942002, guid: a9878449e0a5b65469b1cd4e599af177, type: 3}
+  - {fileID: 1258948019402942002, guid: d92cfc5768918d04a8b702e6b2fbcc37, type: 3}
   spawnPoints:
   - {fileID: 1983382696}
   - {fileID: 1274850142}
@@ -2444,7 +2448,7 @@ MonoBehaviour:
   rewardButton02: {fileID: 666438420}
   rewardButton03: {fileID: 1709887513}
   nextBattleUI: {fileID: 200404276}
-  cardManager: {fileID: 0}
+  cardManager: {fileID: 2134081833}
   playerStats: {fileID: 1086770308}
 --- !u!4 &1322196485
 Transform:

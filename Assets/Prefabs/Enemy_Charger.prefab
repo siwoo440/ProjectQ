@@ -15,8 +15,9 @@ GameObject:
   - component: {fileID: 5023574411958980958}
   - component: {fileID: 4770880626534891724}
   - component: {fileID: 7907702905741423981}
-  m_Layer: 0
-  m_Name: EnemyDummy
+  - component: {fileID: 1387226310192963207}
+  m_Layer: 3
+  m_Name: Enemy_Charger
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88,7 +89,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.72955966, g: 0.47490197, b: 0.47490197, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -196,14 +197,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729cba8352dae67499a95b46f9bbbfe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShooter
-  target: {fileID: 0}
+  canShoot: 0
   enemyBulletPrefab: {fileID: 3514182706068816254, guid: f9a7ff56080338a44971adbbb3f05498, type: 3}
   firePoint: {fileID: 2294662370019125263}
   shootInterval: 1.5
-  bulletSpeed: 5
   bulletDamage: 35
+  bulletSpeed: 5
   bulletLifeTime: 5
-  firstShootDelay: 1
+  useSpreadShot: 0
+  bulletCount: 1
+  spreadAngle: 10
 --- !u!114 &7907702905741423981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,9 +219,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3a6bb335ca05244c97be04f4e3816c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
-  target: {fileID: 0}
-  moveSpeed: 1.5
-  stopDistance: 3
+  moveType: 2
+  moveSpeed: 1.2
+  stopDistance: 0.4
+  retreatDistance: 2
+  chargeSpeed: 7
+  chargeCooldown: 2.2
+  chargeReadyTime: 0.4
+  chargeDuration: 0.35
+--- !u!114 &1387226310192963207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258948019402942002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9538579986c8f34c84d0fa0807f9792, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyContactDamage
+  contactDamage: 18
+  damageCooldown: 1
 --- !u!1 &3478103418437460933
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,7 +250,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2294662370019125263}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EnemyFirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
