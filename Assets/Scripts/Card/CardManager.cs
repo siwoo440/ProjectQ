@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CardManager : MonoBehaviour
@@ -7,19 +8,18 @@ public class CardManager : MonoBehaviour
     public GameObject bulletPrefab; // 생성할 탄환 프리팹을 저장한다.
     public Transform firePoint; // 탄환이 생성될 위치를 저장한다.
     public Camera mainCamera; // 마우스 위치 계산에 사용할 카메라를 저장한다.
+    public CardSlotUI cardSlotUI; // 카드 슬롯 UI를 저장한다.
 
-    [Header("Pixel Shot Settings")]
-    public float manaCost = 1f; // 픽셀 샷 마나 비용을 저장한다.
-    public float cooldown = 1f; // 픽셀 샷 쿨타임을 저장한다.
-    public int bulletDamage = 10; // 탄환 1발의 피해량을 저장한다.
-    public float bulletSpeed = 10f; // 탄환 속도를 저장한다.
-    public float bulletLifeTime = 3f; // 탄환 생존 시간을 저장한다.
-    public int bulletCount = 3; // 발사할 탄환 수를 저장한다.
-    public float spreadAngle = 10f; // 탄환 사이의 각도 차이를 저장한다.
+    [Header("Runtime Cards")]
+    public List<CardData> ownedCards = new List<CardData>(); // 현재 보유한 카드 목록을 저장한다.
+    public int selectedCardIndex = 0; // 현재 선택한 카드 번호를 저장한다.
 
-    private float nextUseTime = 0f; // 다음 카드 사용 가능 시간을 저장한다.
+    [Header("Reward Modifiers")]
+    public int bonusBulletDamage = 0; // 보상으로 증가한 추가 피해량을 저장한다.
+    public float bonusBulletSpeed = 0f; // 보상으로 증가한 추가 탄환 속도를 저장한다.
+    public float cooldownReduction = 0f; // 보상으로 감소한 쿨타임 수치를 저장한다.
 
-    private void Start() // 시작 시 필요한 참조를 자동으로 보완한다.
+    private void Start() // 시작 시 참조와 기본 카드를 설정한다.
     {
         if (mainCamera == null) // 카메라가 연결되지 않았는지 확인한다.
         {
@@ -28,71 +28,174 @@ public class CardManager : MonoBehaviour
 
         if (playerStats == null) // 플레이어 스탯이 연결되지 않았는지 확인한다.
         {
-            playerStats = FindFirstObjectByType<PlayerStats>(); // 씬에서 PlayerStats를 찾아서 연결한다.
+            playerStats = FindFirstObjectByType<PlayerStats>(); // 씬에서 PlayerStats를 찾는다.
         }
+
+        if (cardSlotUI == null) // 카드 슬롯 UI가 연결되지 않았는지 확인한다.
+        {
+            cardSlotUI = FindFirstObjectByType<CardSlotUI>(); // 씬에서 CardSlotUI를 찾는다.
+        }
+
+        CreateDefaultCards(); // 기본 카드 3개를 생성한다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
     }
 
-    private void Update() // 매 프레임 카드 사용 입력을 확인한다.
+    private void Update() // 매 프레임 카드 선택과 사용 입력을 확인한다.
     {
+        HandleCardSelectionInput(); // 카드 선택 입력을 처리한다.
+
         if (Input.GetMouseButtonDown(0)) // 마우스 좌클릭을 눌렀는지 확인한다.
         {
-            TryUsePixelShot(); // 픽셀 샷 사용을 시도한다.
+            TryUseSelectedCard(); // 현재 선택한 카드 사용을 시도한다.
         }
     }
 
-    private void TryUsePixelShot() // 픽셀 샷을 사용할 수 있는지 확인한다.
+    private void CreateDefaultCards() // 기본 카드 3개를 생성한다.
     {
-        if (Time.time < nextUseTime) // 아직 쿨타임 중인지 확인한다.
+        if (ownedCards.Count > 0) return; // 이미 카드가 있으면 다시 만들지 않는다.
+
+        ownedCards.Add(new CardData("Pixel Shot", CardType.PixelShot, 1f, 1f, 10, 10f, 3f, 3, 10f)); // 기본 3발 카드를 추가한다.
+        ownedCards.Add(new CardData("Focus Shot", CardType.FocusShot, 2f, 1.4f, 25, 14f, 3f, 1, 0f)); // 강한 단일 탄환 카드를 추가한다.
+        ownedCards.Add(new CardData("Wide Shot", CardType.WideShot, 2f, 1.8f, 8, 9f, 3f, 5, 15f)); // 넓게 퍼지는 5발 카드를 추가한다.
+    }
+
+    private void HandleCardSelectionInput() // 카드 선택 입력을 처리한다.
+    {
+        if (ownedCards.Count == 0) return; // 보유 카드가 없으면 실행하지 않는다.
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectCard(0); // 1번 키로 첫 번째 카드를 선택한다.
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectCard(1); // 2번 키로 두 번째 카드를 선택한다.
+        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectCard(2); // 3번 키로 세 번째 카드를 선택한다.
+
+        if (Input.GetKeyDown(KeyCode.Q)) SelectPreviousCard(); // Q 키로 이전 카드를 선택한다.
+        if (Input.GetKeyDown(KeyCode.E)) SelectNextCard(); // E 키로 다음 카드를 선택한다.
+
+        float scroll = Input.mouseScrollDelta.y; // 마우스 휠 입력을 가져온다.
+
+        if (scroll > 0f) // 휠을 위로 올렸는지 확인한다.
         {
-            Debug.Log("카드 쿨타임 중"); // 쿨타임 로그를 출력한다.
+            SelectPreviousCard(); // 이전 카드를 선택한다.
+        }
+        else if (scroll < 0f) // 휠을 아래로 내렸는지 확인한다.
+        {
+            SelectNextCard(); // 다음 카드를 선택한다.
+        }
+    }
+
+    private void SelectCard(int index) // 지정한 번호의 카드를 선택한다.
+    {
+        if (index < 0 || index >= ownedCards.Count) return; // 범위 밖이면 실행하지 않는다.
+
+        selectedCardIndex = index; // 선택 카드 번호를 변경한다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log("Selected Card : " + ownedCards[selectedCardIndex].cardName); // 선택한 카드 이름을 로그로 출력한다.
+    }
+
+    private void SelectNextCard() // 다음 카드를 선택한다.
+    {
+        if (ownedCards.Count == 0) return; // 보유 카드가 없으면 실행하지 않는다.
+
+        selectedCardIndex += 1; // 선택 번호를 1 증가시킨다.
+
+        if (selectedCardIndex >= ownedCards.Count) // 마지막 카드를 넘었는지 확인한다.
+        {
+            selectedCardIndex = 0; // 첫 번째 카드로 돌아간다.
+        }
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+    }
+
+    private void SelectPreviousCard() // 이전 카드를 선택한다.
+    {
+        if (ownedCards.Count == 0) return; // 보유 카드가 없으면 실행하지 않는다.
+
+        selectedCardIndex -= 1; // 선택 번호를 1 감소시킨다.
+
+        if (selectedCardIndex < 0) // 첫 번째 카드보다 앞인지 확인한다.
+        {
+            selectedCardIndex = ownedCards.Count - 1; // 마지막 카드로 이동한다.
+        }
+
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+    }
+
+    private void TryUseSelectedCard() // 현재 선택한 카드 사용을 시도한다.
+    {
+        if (ownedCards.Count == 0) return; // 보유 카드가 없으면 실행하지 않는다.
+
+        CardData selectedCard = ownedCards[selectedCardIndex]; // 현재 선택한 카드를 가져온다.
+        float finalCooldown = GetFinalCooldown(selectedCard); // 보상 효과가 반영된 최종 쿨타임을 계산한다.
+
+        if (Time.time < selectedCard.lastUseTime + finalCooldown) // 아직 쿨타임 중인지 확인한다.
+        {
+            Debug.Log("Card Cooldown : " + selectedCard.cardName); // 쿨타임 로그를 출력한다.
             return; // 카드 사용을 중단한다.
         }
 
         if (playerStats == null) // 플레이어 스탯이 없는지 확인한다.
         {
-            Debug.LogError("PlayerStats가 연결되지 않았습니다."); // 오류 로그를 출력한다.
+            Debug.LogError("PlayerStats is not assigned."); // 오류 로그를 출력한다.
             return; // 카드 사용을 중단한다.
         }
 
-        if (bulletPrefab == null) // 탄환 프리팹이 없는지 확인한다.
-        {
-            Debug.LogError("Bullet Prefab이 연결되지 않았습니다."); // 오류 로그를 출력한다.
-            return; // 카드 사용을 중단한다.
-        }
+        bool canUseMana = playerStats.UseMana(selectedCard.manaCost); // 카드 MP 비용 사용을 시도한다.
 
-        if (firePoint == null) // 발사 위치가 없는지 확인한다.
-        {
-            Debug.LogError("FirePoint가 연결되지 않았습니다."); // 오류 로그를 출력한다.
-            return; // 카드 사용을 중단한다.
-        }
-
-        bool canUseMana = playerStats.UseMana(manaCost); // 마나 사용을 시도한다.
-
-        if (canUseMana == false) // 마나 사용에 실패했는지 확인한다.
+        if (canUseMana == false) // MP가 부족한지 확인한다.
         {
             return; // 카드 사용을 중단한다.
         }
 
-        FirePixelShot(); // 픽셀 샷 탄환을 발사한다.
-        nextUseTime = Time.time + cooldown; // 다음 사용 가능 시간을 설정한다.
+        CastCard(selectedCard); // 선택한 카드를 사용한다.
+        selectedCard.lastUseTime = Time.time; // 마지막 사용 시간을 갱신한다.
     }
 
-    private void FirePixelShot() // 픽셀 샷 3발을 발사한다.
+    private void CastCard(CardData cardData) // 카드 종류에 따라 카드 효과를 실행한다.
+    {
+        switch (cardData.cardType) // 카드 종류를 확인한다.
+        {
+            case CardType.PixelShot: // Pixel Shot인지 확인한다.
+                FireSpread(cardData); // 퍼짐 탄환을 발사한다.
+                break; // switch문을 종료한다.
+
+            case CardType.FocusShot: // Focus Shot인지 확인한다.
+                FireFocus(cardData); // 단일 강탄을 발사한다.
+                break; // switch문을 종료한다.
+
+            case CardType.WideShot: // Wide Shot인지 확인한다.
+                FireSpread(cardData); // 넓은 퍼짐 탄환을 발사한다.
+                break; // switch문을 종료한다.
+        }
+    }
+
+    private void FireSpread(CardData cardData) // 여러 발의 퍼짐 탄환을 발사한다.
     {
         Vector2 baseDirection = GetMouseDirection(); // 마우스 방향을 기준 방향으로 가져온다.
+        float centerIndex = (cardData.bulletCount - 1) / 2f; // 가운데 탄환 기준 인덱스를 계산한다.
 
-        for (int i = 0; i < bulletCount; i++) // 탄환 수만큼 반복한다.
+        for (int i = 0; i < cardData.bulletCount; i++) // 탄환 수만큼 반복한다.
         {
-            float centerIndex = (bulletCount - 1) / 2f; // 가운데 탄환의 기준 인덱스를 계산한다.
-            float angleOffset = (i - centerIndex) * spreadAngle; // 각 탄환의 각도 차이를 계산한다.
-            Vector2 shotDirection = RotateVector(baseDirection, angleOffset); // 기준 방향을 각도만큼 회전한다.
+            float angleOffset = (i - centerIndex) * cardData.spreadAngle; // 각 탄환의 각도 차이를 계산한다.
+            Vector2 shotDirection = RotateVector(baseDirection, angleOffset); // 기준 방향을 회전한다.
 
-            CreateBullet(shotDirection); // 회전된 방향으로 탄환을 생성한다.
+            CreateBullet(cardData, shotDirection); // 탄환을 생성한다.
         }
+    }
+
+    private void FireFocus(CardData cardData) // 강한 단일 탄환을 발사한다.
+    {
+        Vector2 direction = GetMouseDirection(); // 마우스 방향을 가져온다.
+
+        CreateBullet(cardData, direction); // 단일 탄환을 생성한다.
     }
 
     private Vector2 GetMouseDirection() // 마우스 방향을 계산한다.
     {
+        if (mainCamera == null) // 카메라가 없는지 확인한다.
+        {
+            mainCamera = Camera.main; // MainCamera를 다시 찾는다.
+        }
+
         Vector3 mousePosition = Input.mousePosition; // 화면상의 마우스 위치를 가져온다.
         Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mousePosition); // 마우스 위치를 월드 좌표로 변환한다.
         mouseWorldPosition.z = 0f; // 2D 게임이므로 z값을 0으로 맞춘다.
@@ -104,7 +207,7 @@ public class CardManager : MonoBehaviour
             direction = Vector2.right; // 기본 방향을 오른쪽으로 설정한다.
         }
 
-        return direction.normalized; // 방향을 정규화해서 반환한다.
+        return direction.normalized; // 정규화된 방향을 반환한다.
     }
 
     private Vector2 RotateVector(Vector2 vector, float angle) // 벡터를 지정 각도만큼 회전한다.
@@ -116,35 +219,79 @@ public class CardManager : MonoBehaviour
         float x = vector.x * cos - vector.y * sin; // 회전된 x값을 계산한다.
         float y = vector.x * sin + vector.y * cos; // 회전된 y값을 계산한다.
 
-        return new Vector2(x, y).normalized; // 회전된 방향을 정규화해서 반환한다.
+        return new Vector2(x, y).normalized; // 회전된 방향을 반환한다.
     }
 
-    private void CreateBullet(Vector2 direction) // 탄환을 생성한다.
+    private void CreateBullet(CardData cardData, Vector2 direction) // 탄환을 생성한다.
     {
+        if (bulletPrefab == null) // 탄환 프리팹이 없는지 확인한다.
+        {
+            Debug.LogError("Bullet Prefab is not assigned."); // 오류 로그를 출력한다.
+            return; // 탄환 생성을 중단한다.
+        }
+
+        if (firePoint == null) // 발사 위치가 없는지 확인한다.
+        {
+            Debug.LogError("FirePoint is not assigned."); // 오류 로그를 출력한다.
+            return; // 탄환 생성을 중단한다.
+        }
+
         GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity); // 탄환 프리팹을 생성한다.
         Bullet bullet = bulletObject.GetComponent<Bullet>(); // 생성된 탄환의 Bullet 컴포넌트를 가져온다.
 
         if (bullet == null) // Bullet 컴포넌트가 없는지 확인한다.
         {
-            Debug.LogError("생성된 탄환에 Bullet.cs가 없습니다."); // 오류 로그를 출력한다.
+            Debug.LogError("Generated bullet has no Bullet component."); // 오류 로그를 출력한다.
             return; // 탄환 설정을 중단한다.
         }
 
-        bullet.Initialize(direction, bulletSpeed, bulletDamage, bulletLifeTime); // 탄환의 방향, 속도, 피해량, 생존 시간을 설정한다.
+        int finalDamage = GetFinalDamage(cardData); // 최종 피해량을 계산한다.
+        float finalSpeed = GetFinalBulletSpeed(cardData); // 최종 탄환 속도를 계산한다.
+
+        bullet.Initialize(direction, finalSpeed, finalDamage, cardData.bulletLifeTime); // 탄환 정보를 설정한다.
     }
 
-    public void IncreaseBulletDamage(int amount) // 픽셀 샷 탄환 피해량을 증가시킨다.
+    private int GetFinalDamage(CardData cardData) // 보상 효과가 반영된 최종 피해량을 계산한다.
     {
-        bulletDamage += amount; // 탄환 피해량을 증가시킨다.
-
-        Debug.Log("픽셀 샷 데미지 증가 : " + bulletDamage); // 증가된 피해량을 로그로 출력한다.
+        return Mathf.Max(cardData.bulletDamage + bonusBulletDamage, 1); // 최소 1 이상의 피해량을 반환한다.
     }
 
-    public void ReduceCooldown(float amount) // 픽셀 샷 쿨타임을 감소시킨다.
+    private float GetFinalBulletSpeed(CardData cardData) // 보상 효과가 반영된 최종 탄환 속도를 계산한다.
     {
-        cooldown -= amount; // 쿨타임을 감소시킨다.
-        cooldown = Mathf.Max(cooldown, 0.2f); // 쿨타임이 너무 낮아지지 않도록 제한한다.
+        return Mathf.Max(cardData.bulletSpeed + bonusBulletSpeed, 1f); // 최소 1 이상의 속도를 반환한다.
+    }
 
-        Debug.Log("픽셀 샷 쿨타임 감소 : " + cooldown); // 감소된 쿨타임을 로그로 출력한다.
+    private float GetFinalCooldown(CardData cardData) // 보상 효과가 반영된 최종 쿨타임을 계산한다.
+    {
+        return Mathf.Max(cardData.cooldown - cooldownReduction, 0.2f); // 최소 쿨타임을 0.2초로 제한한다.
+    }
+
+    private void UpdateCardUI() // 카드 UI를 갱신한다.
+    {
+        if (cardSlotUI == null) return; // 카드 슬롯 UI가 없으면 실행하지 않는다.
+
+        cardSlotUI.UpdateCardSlots(ownedCards, selectedCardIndex); // 카드 슬롯 UI에 현재 카드 정보를 전달한다.
+    }
+
+    public void IncreaseBulletDamage(int amount) // 보상으로 카드 탄환 피해량을 증가시킨다.
+    {
+        bonusBulletDamage += amount; // 추가 피해량을 증가시킨다.
+
+        Debug.Log("Bonus Bullet Damage : " + bonusBulletDamage); // 추가 피해량을 로그로 출력한다.
+    }
+
+    public void ReduceCooldown(float amount) // 보상으로 카드 쿨타임을 감소시킨다.
+    {
+        cooldownReduction += amount; // 쿨타임 감소량을 증가시킨다.
+        cooldownReduction = Mathf.Min(cooldownReduction, 1.5f); // 쿨타임 감소량이 너무 커지지 않게 제한한다.
+
+        Debug.Log("Cooldown Reduction : " + cooldownReduction); // 쿨타임 감소량을 로그로 출력한다.
+    }
+
+    public void IncreaseBulletSpeed(float amount) // 보상으로 카드 탄환 속도를 증가시킨다.
+    {
+        bonusBulletSpeed += amount; // 추가 탄환 속도를 증가시킨다.
+
+        Debug.Log("Bonus Bullet Speed : " + bonusBulletSpeed); // 추가 탄환 속도를 로그로 출력한다.
     }
 }

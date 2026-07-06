@@ -108,7 +108,21 @@ public class PlayerStats : MonoBehaviour
 
         Debug.Log("Player Stats Reset"); // 플레이어 스탯 초기화 로그를 출력한다.
     }
+    public void IncreaseMaxHealth(int amount) // 최대 체력을 증가시킨다.
+    {
+        maxHealth += amount; // 최대 체력을 증가시킨다.
+        currentHealth += amount; // 현재 체력도 같이 증가시킨다.
+        currentHealth = Mathf.Min(currentHealth, maxHealth); // 현재 체력이 최대 체력을 넘지 않게 한다.
 
+        Debug.Log("Max HP : " + maxHealth); // 증가된 최대 체력을 로그로 출력한다.
+    }
+
+    public void IncreaseManaRegen(float amount) // MP 회복 속도를 증가시킨다.
+    {
+        manaRegenPerSecond += amount; // 초당 마나 회복량을 증가시킨다.
+
+        Debug.Log("MP Regen : " + manaRegenPerSecond); // 증가된 MP 회복량을 로그로 출력한다.
+    }
     private void Die() // 플레이어 사망을 처리한다.
     {
         if (isDead) return; // 이미 사망 처리되었다면 다시 실행하지 않는다.
