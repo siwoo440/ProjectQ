@@ -63,9 +63,15 @@ public class CardManager : MonoBehaviour
     {
         if (ownedCards.Count == 0) return; // 보유 카드가 없으면 실행하지 않는다.
 
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectCard(0); // 1번 키로 첫 번째 카드를 선택한다.
-        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectCard(1); // 2번 키로 두 번째 카드를 선택한다.
-        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectCard(2); // 3번 키로 세 번째 카드를 선택한다.
+        for (int i = 0; i < ownedCards.Count && i < 9; i++) // 보유 카드 수만큼 숫자키 입력을 확인한다.
+        {
+            KeyCode keyCode = (KeyCode)((int)KeyCode.Alpha1 + i); // 1번 키부터 순서대로 KeyCode를 만든다.
+
+            if (Input.GetKeyDown(keyCode)) // 해당 숫자키를 눌렀는지 확인한다.
+            {
+                SelectCard(i); // 해당 번호의 카드를 선택한다.
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.Q)) SelectPreviousCard(); // Q 키로 이전 카드를 선택한다.
         if (Input.GetKeyDown(KeyCode.E)) SelectNextCard(); // E 키로 다음 카드를 선택한다.
@@ -327,7 +333,7 @@ public class CardManager : MonoBehaviour
         Debug.Log("New Card Added : " + newCard.cardName); // 새 카드 획득 로그를 출력한다.
     }
 
-    private bool HasCard(CardType cardType) // 특정 카드를 이미 가지고 있는지 확인한다.
+    public bool HasCard(CardType cardType) // 특정 카드를 이미 가지고 있는지 확인한다.
     {
         for (int i = 0; i < ownedCards.Count; i++) // 보유 카드 수만큼 반복한다.
         {

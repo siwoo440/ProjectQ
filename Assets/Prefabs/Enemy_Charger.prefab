@@ -89,7 +89,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.72955966, g: 0.47490197, b: 0.47490197, a: 1}
+  m_Color: {r: 0.6791434, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -198,15 +198,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShooter
   canShoot: 0
+  attackPattern: 0
   enemyBulletPrefab: {fileID: 3514182706068816254, guid: f9a7ff56080338a44971adbbb3f05498, type: 3}
   firePoint: {fileID: 2294662370019125263}
   shootInterval: 1.5
   bulletDamage: 35
   bulletSpeed: 5
   bulletLifeTime: 5
-  useSpreadShot: 0
-  bulletCount: 1
+  burstCount: 3
+  burstInterval: 0.12
+  spreadBulletCount: 5
   spreadAngle: 10
+  circleBulletCount: 12
 --- !u!114 &7907702905741423981
 MonoBehaviour:
   m_ObjectHideFlags: 0

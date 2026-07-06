@@ -80,11 +80,17 @@ public class RewardManager : MonoBehaviour
         }
     }
 
-    private void SelectRandomRewards() // 보상 풀에서 중복 없이 3개를 선택한다.
+    private void SelectRandomRewards() // 보상 풀에서 조건에 맞는 보상 3개를 중복 없이 선택한다.
     {
         currentRewards.Clear(); // 현재 보상 목록을 비운다.
 
-        List<RewardData> tempPool = new List<RewardData>(rewardPool); // 원본 보상 풀을 복사한다.
+        List<RewardData> tempPool = GetAvailableRewardPool(); // 현재 상황에서 등장 가능한 보상 목록을 가져온다.
+
+        if (tempPool.Count < 3) // 표시할 보상이 3개보다 적은지 확인한다.
+        {
+            Debug.LogWarning("Available rewards are less than 3. Use full reward pool instead."); // 경고 로그를 출력한다.
+            tempPool = new List<RewardData>(rewardPool); // 안전을 위해 전체 보상 풀을 사용한다.
+        }
 
         int rewardCount = Mathf.Min(3, tempPool.Count); // 표시할 보상 수를 계산한다.
 
@@ -96,8 +102,78 @@ public class RewardManager : MonoBehaviour
             currentRewards.Add(selectedReward); // 현재 보상 목록에 추가한다.
             tempPool.RemoveAt(randomIndex); // 중복 방지를 위해 임시 목록에서 제거한다.
         }
-    }
 
+        Debug.Log("Available Reward Count : " + tempPool.Count); // 남은 사용 가능 보상 수를 로그로 출력한다.
+    }
+    private List<RewardData> GetAvailableRewardPool() // 현재 보유 카드 상태에 맞는 보상 목록을 만든다.
+    {
+        List<RewardData> availableRewards = new List<RewardData>(); // 사용 가능한 보상 목록을 만든다.
+
+        for (int i = 0; i < rewardPool.Count; i++) // 전체 보상 후보 수만큼 반복한다.
+        {
+            RewardData rewardData = rewardPool[i]; // 현재 확인할 보상 데이터를 가져온다.
+
+            if (IsRewardAvailable(rewardData)) // 현재 상황에서 등장 가능한 보상인지 확인한다.
+            {
+                availableRewards.Add(rewardData); // 사용 가능한 보상 목록에 추가한다.
+            }
+        }
+
+        return availableRewards; // 필터링된 보상 목록을 반환한다.
+    }
+    private bool IsRewardAvailable(RewardData rewardData) // 특정 보상이 현재 등장 가능한지 확인한다.
+    {
+        if (rewardData == null) return false; // 보상 데이터가 없으면 등장하지 않게 한다.
+
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            return IsCardSpecificReward(rewardData.rewardType) == false; // 카드 전용 보상은 제외한다.
+        }
+
+        switch (rewardData.rewardType) // 보상 타입을 확인한다.
+        {
+            case RewardType.NewRapidShot: // Rapid Shot 새 카드 보상인지 확인한다.
+                return cardManager.HasCard(CardType.RapidShot) == false; // Rapid Shot이 없을 때만 등장한다.
+
+            case RewardType.NewHeavyShot: // Heavy Shot 새 카드 보상인지 확인한다.
+                return cardManager.HasCard(CardType.HeavyShot) == false; // Heavy Shot이 없을 때만 등장한다.
+
+            case RewardType.UpgradePixelShotDamage: // Pixel Shot 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.PixelShot); // Pixel Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeFocusShotDamage: // Focus Shot 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.FocusShot); // Focus Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeWideShotBulletCount: // Wide Shot 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.WideShot); // Wide Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeRapidShotCooldown: // Rapid Shot 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.RapidShot); // Rapid Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.HeavyShot); // Heavy Shot을 가지고 있을 때만 등장한다.
+
+            default: // 일반 스탯 보상인 경우다.
+                return true; // 일반 보상은 항상 등장 가능하다.
+        }
+    }
+    private bool IsCardSpecificReward(RewardType rewardType) // 카드 보상인지 확인한다.
+    {
+        switch (rewardType) // 보상 타입을 확인한다.
+        {
+            case RewardType.NewRapidShot: // Rapid Shot 새 카드 보상인지 확인한다.
+            case RewardType.NewHeavyShot: // Heavy Shot 새 카드 보상인지 확인한다.
+            case RewardType.UpgradePixelShotDamage: // Pixel Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeFocusShotDamage: // Focus Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeWideShotBulletCount: // Wide Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeRapidShotCooldown: // Rapid Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 강화 보상인지 확인한다.
+                return true; // 카드 관련 보상이라고 반환한다.
+
+            default: // 그 외 보상인 경우다.
+                return false; // 카드 관련 보상이 아니라고 반환한다.
+        }
+    }
     private void ApplyRewardsToButtons() // 선택된 보상을 버튼에 적용한다.
     {
         if (currentRewards.Count < 3) // 보상 수가 3개보다 적은지 확인한다.
