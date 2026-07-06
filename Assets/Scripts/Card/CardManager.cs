@@ -257,10 +257,11 @@ public class CardManager : MonoBehaviour
             return; // 탄환 설정을 중단한다.
         }
 
-        int finalDamage = GetFinalDamage(cardData); // 최종 피해량을 계산한다.
-        float finalSpeed = GetFinalBulletSpeed(cardData); // 최종 탄환 속도를 계산한다.
+        int finalDamage = cardData.bulletDamage + bonusBulletDamage; // 카드 기본 데미지에 전체 데미지 보너스를 더한다.
+        float finalBulletSpeed = cardData.bulletSpeed + bonusBulletSpeed; // 카드 기본 탄속에 전체 탄속 보너스를 더한다.
 
-        bullet.Initialize(direction, finalSpeed, finalDamage, cardData.bulletLifeTime); // 탄환 정보를 설정한다.
+        bullet.InitializeSpecial(direction, finalBulletSpeed, finalDamage, cardData.bulletLifeTime, cardData.bulletEffectType,
+            cardData.pierceCount, cardData.explosionRadius, cardData.homingRange, cardData.homingTurnSpeed); // 카드 효과 정보를 포함해 탄환을 초기화한다.
     }
 
     private int GetFinalDamage(CardData cardData) // 보상 효과가 반영된 최종 피해량을 계산한다.
@@ -310,13 +311,19 @@ public class CardManager : MonoBehaviour
             return; // 카드 추가를 종료한다.
         }
 
-        CardData newCard = CreateCardByType(cardType); // 카드 타입에 맞는 새 카드 데이터를 만든다.
+        CardData newCard = CreateCardByType(cardType); // 카드 타입에 맞는 새 카드를 만든다.
 
-        if (newCard == null) return; // 새 카드 데이터가 없으면 실행하지 않는다.
+        if (newCard == null) // 새 카드 생성에 실패했는지 확인한다.
+        {
+            Debug.LogWarning("Card creation failed : " + cardType); // 카드 생성 실패 로그를 출력한다.
+            return; // 카드 추가를 종료한다.
+        }
 
         ownedCards.Add(newCard); // 보유 카드 목록에 새 카드를 추가한다.
         selectedCardIndex = ownedCards.Count - 1; // 새로 얻은 카드를 선택한다.
         UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log("New Card Added : " + newCard.cardName); // 새 카드 추가 로그를 출력한다.
     }
 
     public bool HasCard(CardType cardType) // 특정 카드를 이미 가지고 있는지 확인한다.
@@ -350,6 +357,31 @@ public class CardManager : MonoBehaviour
 
             case CardType.HeavyShot: // Heavy Shot인지 확인한다.
                 return new CardData("Heavy Shot", CardType.HeavyShot, 3f, 2.2f, 45, 8f, 4f, 1, 0f); // Heavy Shot 데이터를 반환한다.
+
+            case CardType.PierceShot: // Pierce Shot 카드인지 확인한다.
+                {
+                    CardData cardData = new CardData("Pierce Shot", CardType.PierceShot, 2f, 1.6f, 14, 11f, 3f, 1, 0f); // Pierce Shot 데이터를 만든다.
+                    cardData.bulletEffectType = BulletEffectType.Pierce; // 관통 탄환으로 설정한다.
+                    cardData.pierceCount = 3; // 최대 3회 관통하도록 설정한다.
+                    return cardData; // Pierce Shot 데이터를 반환한다.
+                }
+
+            case CardType.BombShot: // Bomb Shot 카드인지 확인한다.
+                {
+                    CardData cardData = new CardData("Bomb Shot", CardType.BombShot, 3f, 2.4f, 18, 7f, 3.5f, 1, 0f); // Bomb Shot 데이터를 만든다.
+                    cardData.bulletEffectType = BulletEffectType.Bomb; // 폭발 탄환으로 설정한다.
+                    cardData.explosionRadius = 2.2f; // 폭발 범위를 설정한다.
+                    return cardData; // Bomb Shot 데이터를 반환한다.
+                }
+
+            case CardType.HomingShot: // Homing Shot 카드인지 확인한다.
+                {
+                    CardData cardData = new CardData("Homing Shot", CardType.HomingShot, 2f, 1.8f, 10, 8f, 4f, 1, 0f); // Homing Shot 데이터를 만든다.
+                    cardData.bulletEffectType = BulletEffectType.Homing; // 유도 탄환으로 설정한다.
+                    cardData.homingRange = 7f; // 유도 탐색 범위를 설정한다.
+                    cardData.homingTurnSpeed = 4f; // 유도 회전 속도를 설정한다.
+                    return cardData; // Homing Shot 데이터를 반환한다.
+                }
         }
 
         return null; // 해당하는 카드가 없으면 null을 반환한다.
@@ -396,5 +428,41 @@ public class CardManager : MonoBehaviour
         }
 
         return null; // 찾지 못하면 null을 반환한다.
+    }
+
+    public void UpgradeCardPierceCount(CardType cardType, int value) // 특정 카드의 관통 수를 강화한다.
+    {
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
+
+        cardData.pierceCount += value; // 관통 수를 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(cardData.cardName + " Pierce Count +" + value); // 강화 로그를 출력한다.
+    }
+
+    public void UpgradeCardExplosionRadius(CardType cardType, float value) // 특정 카드의 폭발 범위를 강화한다.
+    {
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
+
+        cardData.explosionRadius += value; // 폭발 범위를 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(cardData.cardName + " Explosion Radius +" + value); // 강화 로그를 출력한다.
+    }
+
+    public void UpgradeCardHomingTurnSpeed(CardType cardType, float value) // 특정 카드의 유도 회전 속도를 강화한다.
+    {
+        CardData cardData = FindCard(cardType); // 강화할 카드를 찾는다.
+
+        if (cardData == null) return; // 카드가 없으면 실행하지 않는다.
+
+        cardData.homingTurnSpeed += value; // 유도 회전 속도를 증가시킨다.
+        UpdateCardUI(); // 카드 UI를 갱신한다.
+
+        Debug.Log(cardData.cardName + " Homing Turn Speed +" + value); // 강화 로그를 출력한다.
     }
 }

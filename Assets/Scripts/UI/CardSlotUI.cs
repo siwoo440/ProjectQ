@@ -84,6 +84,23 @@ public class CardSlotUI : MonoBehaviour
         detailText += "Bullet Speed: " + displaySpeed.ToString("0.##") + "\n"; // 탄환 속도를 추가한다.
         detailText += "Life Time: " + cardData.bulletLifeTime.ToString("0.##") + "s\n"; // 탄환 지속 시간을 추가한다.
         detailText += "Spread: " + cardData.spreadAngle.ToString("0.##"); // 탄퍼짐 각도를 추가한다.
+        detailText += "\nEffect: " + cardData.bulletEffectType; // 탄환 효과 타입을 추가한다.
+
+        if (cardData.bulletEffectType == BulletEffectType.Pierce) // 관통 탄환인지 확인한다.
+        {
+            detailText += "\nPierce Count: " + cardData.pierceCount; // 관통 수를 추가한다.
+        }
+
+        if (cardData.bulletEffectType == BulletEffectType.Bomb) // 폭발 탄환인지 확인한다.
+        {
+            detailText += "\nExplosion Radius: " + cardData.explosionRadius.ToString("0.##"); // 폭발 범위를 추가한다.
+        }
+
+        if (cardData.bulletEffectType == BulletEffectType.Homing) // 유도 탄환인지 확인한다.
+        {
+            detailText += "\nHoming Range: " + cardData.homingRange.ToString("0.##"); // 유도 범위를 추가한다.
+            detailText += "\nTurn Speed: " + cardData.homingTurnSpeed.ToString("0.##"); // 유도 회전 속도를 추가한다.
+        }
 
         cardDetailText.text = detailText; // 완성된 상세 정보를 표시한다.
     }
@@ -106,6 +123,15 @@ public class CardSlotUI : MonoBehaviour
 
             case CardType.HeavyShot: // Heavy Shot인지 확인한다.
                 return "Heavy Damage"; // 강한 한 방 카드라고 반환한다.
+
+            case CardType.PierceShot: // Pierce Shot인지 확인한다.
+                return "Pierce"; // 관통 카드라고 반환한다.
+
+            case CardType.BombShot: // Bomb Shot인지 확인한다.
+                return "Explosion"; // 폭발 카드라고 반환한다.
+
+            case CardType.HomingShot: // Homing Shot인지 확인한다.
+                return "Homing"; // 유도 카드라고 반환한다.
 
             default: // 정의되지 않은 카드 타입인 경우다.
                 return "Unknown"; // 알 수 없는 역할이라고 반환한다.

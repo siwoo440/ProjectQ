@@ -41,6 +41,9 @@ public class RewardButton : MonoBehaviour
         {
             case RewardType.NewRapidShot: // Rapid Shot 새 카드 보상인지 확인한다.
             case RewardType.NewHeavyShot: // Heavy Shot 새 카드 보상인지 확인한다.
+            case RewardType.NewPierceShot: // Pierce Shot 새 카드 보상인지 확인한다.
+            case RewardType.NewBombShot: // Bomb Shot 새 카드 보상인지 확인한다.
+            case RewardType.NewHomingShot: // Homing Shot 새 카드 보상인지 확인한다.
                 return "New Card"; // 새 카드 보상이라고 반환한다.
 
             case RewardType.UpgradePixelShotDamage: // Pixel Shot 강화 보상인지 확인한다.
@@ -48,6 +51,12 @@ public class RewardButton : MonoBehaviour
             case RewardType.UpgradeWideShotBulletCount: // Wide Shot 강화 보상인지 확인한다.
             case RewardType.UpgradeRapidShotCooldown: // Rapid Shot 강화 보상인지 확인한다.
             case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradePierceShotDamage: // Pierce Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradePierceShotPierceCount: // Pierce Shot 관통 수 강화 보상인지 확인한다.
+            case RewardType.UpgradeBombShotDamage: // Bomb Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeBombShotRadius: // Bomb Shot 폭발 범위 강화 보상인지 확인한다.
+            case RewardType.UpgradeHomingShotDamage: // Homing Shot 강화 보상인지 확인한다.
+            case RewardType.UpgradeHomingShotTurnSpeed: // Homing Shot 유도 회전 속도 강화 보상인지 확인한다.
                 return "Card Upgrade"; // 카드 강화 보상이라고 반환한다.
 
             case RewardType.RelicBloodCore: // Blood Core 유물 보상인지 확인한다.

@@ -26,5 +26,16 @@ public enum RewardType
     RelicFocusLens, // Focus Lens 유물 획득 보상이다.
     RelicWideBarrel, // Wide Barrel 유물 획득 보상이다.
     RelicRapidBattery, // Rapid Battery 유물 획득 보상이다.
-    RelicHeavyCore // Heavy Core 유물 획득 보상이다.
+    RelicHeavyCore, // Heavy Core 유물 획득 보상이다.
+
+    NewPierceShot, // Pierce Shot 새 카드 획득 보상이다.
+    NewBombShot, // Bomb Shot 새 카드 획득 보상이다.
+    NewHomingShot, // Homing Shot 새 카드 획득 보상이다.
+
+    UpgradePierceShotDamage, // Pierce Shot 데미지 강화 보상이다.
+    UpgradePierceShotPierceCount, // Pierce Shot 관통 수 강화 보상이다.
+    UpgradeBombShotDamage, // Bomb Shot 데미지 강화 보상이다.
+    UpgradeBombShotRadius, // Bomb Shot 폭발 범위 강화 보상이다.
+    UpgradeHomingShotDamage, // Homing Shot 데미지 강화 보상이다.
+    UpgradeHomingShotTurnSpeed // Homing Shot 유도 회전 속도 강화 보상이다.
 }

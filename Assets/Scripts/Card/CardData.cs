@@ -21,6 +21,12 @@ public class CardData
     [Header("Runtime")]
     public float lastUseTime = -999f; // 마지막 사용 시간을 저장한다.
 
+    public BulletEffectType bulletEffectType = BulletEffectType.Normal; // 카드가 발사할 탄환 효과 타입을 저장한다.
+    public int pierceCount = 0; // 관통 가능한 적 수를 저장한다.
+    public float explosionRadius = 0f; // 폭발 범위를 저장한다.
+    public float homingRange = 0f; // 유도 탄환이 적을 탐색할 범위를 저장한다.
+    public float homingTurnSpeed = 0f; // 유도 탄환이 방향을 바꾸는 속도를 저장한다.
+
     public CardData(string newName, CardType newType, float newManaCost, float newCooldown, int newDamage, float newSpeed, float newLifeTime, int newBulletCount, float newSpreadAngle) // 카드 데이터를 생성한다.
     {
         cardName = newName; // 카드 이름을 설정한다.

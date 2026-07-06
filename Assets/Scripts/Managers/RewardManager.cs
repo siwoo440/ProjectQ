@@ -70,7 +70,16 @@ public class RewardManager : MonoBehaviour
         rewardPool.Add(new RewardData("Relic: Focus Lens", "Focus Shot Damage +15", RewardType.RelicFocusLens, RewardRarity.Rare, 15f)); // Focus Lens 유물 보상을 추가한다.
         rewardPool.Add(new RewardData("Relic: Wide Barrel", "Wide Shot Bullet Count +2", RewardType.RelicWideBarrel, RewardRarity.Rare, 2f)); // Wide Barrel 유물 보상을 추가한다.
         rewardPool.Add(new RewardData("Relic: Rapid Battery", "Rapid Shot Cooldown -0.08s", RewardType.RelicRapidBattery, RewardRarity.Rare, 0.08f)); // Rapid Battery 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("New Card: Pierce Shot", "Add Pierce Shot to your deck", RewardType.NewPierceShot, RewardRarity.Rare, 0f)); // Pierce Shot 획득 보상을 추가한다.
+        rewardPool.Add(new RewardData("New Card: Bomb Shot", "Add Bomb Shot to your deck", RewardType.NewBombShot, RewardRarity.Rare, 0f)); // Bomb Shot 획득 보상을 추가한다.
+        rewardPool.Add(new RewardData("New Card: Homing Shot", "Add Homing Shot to your deck", RewardType.NewHomingShot, RewardRarity.Rare, 0f)); // Homing Shot 획득 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Pierce Shot", "Pierce Shot Damage +8", RewardType.UpgradePierceShotDamage, RewardRarity.Rare, 8f)); // Pierce Shot 데미지 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Bomb Shot", "Bomb Shot Damage +10", RewardType.UpgradeBombShotDamage, RewardRarity.Rare, 10f)); // Bomb Shot 데미지 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Homing Shot", "Homing Shot Damage +6", RewardType.UpgradeHomingShotDamage, RewardRarity.Rare, 6f)); // Homing Shot 데미지 강화 보상을 추가한다.
         
+        rewardPool.Add(new RewardData("Upgrade: Pierce Core", "Pierce Shot Pierce Count +1", RewardType.UpgradePierceShotPierceCount, RewardRarity.Epic, 1f)); // Pierce Shot 관통 수 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Bomb Radius", "Bomb Shot Explosion Radius +0.5", RewardType.UpgradeBombShotRadius, RewardRarity.Epic, 0.5f)); // Bomb Shot 폭발 범위 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Upgrade: Homing Core", "Homing Shot Turn Speed +1", RewardType.UpgradeHomingShotTurnSpeed, RewardRarity.Epic, 1f)); // Homing Shot 유도 회전 속도 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Relic: Heavy Core", "Heavy Shot Damage +20", RewardType.RelicHeavyCore, RewardRarity.Epic, 20f)); // Heavy Core 유물 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Heavy Shot", "Heavy Shot Damage +15", RewardType.UpgradeHeavyShotDamage, RewardRarity.Epic, 15f)); // Heavy Shot 피해량 강화 보상을 추가한다.
     }
@@ -268,6 +277,33 @@ public class RewardManager : MonoBehaviour
             case RewardType.RelicHeavyCore: // Heavy Core 유물 보상인지 확인한다.
                 return IsRelicAvailable(RelicType.HeavyCore) && cardManager.HasCard(CardType.HeavyShot); // Heavy Shot이 있을 때만 등장한다.
 
+            case RewardType.NewPierceShot: // Pierce Shot 새 카드 보상인지 확인한다.
+                return cardManager.HasCard(CardType.PierceShot) == false; // Pierce Shot이 없을 때만 등장한다.
+
+            case RewardType.NewBombShot: // Bomb Shot 새 카드 보상인지 확인한다.
+                return cardManager.HasCard(CardType.BombShot) == false; // Bomb Shot이 없을 때만 등장한다.
+
+            case RewardType.NewHomingShot: // Homing Shot 새 카드 보상인지 확인한다.
+                return cardManager.HasCard(CardType.HomingShot) == false; // Homing Shot이 없을 때만 등장한다.
+
+            case RewardType.UpgradePierceShotDamage: // Pierce Shot 데미지 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.PierceShot); // Pierce Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradePierceShotPierceCount: // Pierce Shot 관통 수 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.PierceShot); // Pierce Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeBombShotDamage: // Bomb Shot 데미지 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.BombShot); // Bomb Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeBombShotRadius: // Bomb Shot 폭발 범위 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.BombShot); // Bomb Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeHomingShotDamage: // Homing Shot 데미지 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.HomingShot); // Homing Shot을 가지고 있을 때만 등장한다.
+
+            case RewardType.UpgradeHomingShotTurnSpeed: // Homing Shot 유도 회전 속도 강화 보상인지 확인한다.
+                return cardManager.HasCard(CardType.HomingShot); // Homing Shot을 가지고 있을 때만 등장한다.
+
             default: // 일반 스탯 보상인 경우다.
                 return true; // 일반 보상은 항상 등장 가능하다.
         }
@@ -302,6 +338,15 @@ public class RewardManager : MonoBehaviour
             case RewardType.RelicWideBarrel:
             case RewardType.RelicRapidBattery:
             case RewardType.RelicHeavyCore:
+            case RewardType.NewPierceShot:
+            case RewardType.NewBombShot:
+            case RewardType.NewHomingShot:
+            case RewardType.UpgradePierceShotDamage:
+            case RewardType.UpgradePierceShotPierceCount:
+            case RewardType.UpgradeBombShotDamage:
+            case RewardType.UpgradeBombShotRadius:
+            case RewardType.UpgradeHomingShotDamage:
+            case RewardType.UpgradeHomingShotTurnSpeed:
                 return true; // 카드 관련 보상이라고 반환한다.
 
             default:
@@ -454,6 +499,42 @@ public class RewardManager : MonoBehaviour
                 ApplyRelicReward(new RelicData("Heavy Core", "Heavy Shot Damage +20", RelicType.HeavyCore, rewardData.value)); // Heavy Core 유물을 추가한다.
                 break; // switch문을 종료한다.
 
+            case RewardType.NewPierceShot: // Pierce Shot 새 카드 보상인지 확인한다.
+                ApplyNewCard(CardType.PierceShot); // Pierce Shot을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.NewBombShot: // Bomb Shot 새 카드 보상인지 확인한다.
+                ApplyNewCard(CardType.BombShot); // Bomb Shot을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.NewHomingShot: // Homing Shot 새 카드 보상인지 확인한다.
+                ApplyNewCard(CardType.HomingShot); // Homing Shot을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradePierceShotDamage: // Pierce Shot 데미지 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.PierceShot, rewardData.value); // Pierce Shot 데미지를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradePierceShotPierceCount: // Pierce Shot 관통 수 강화 보상인지 확인한다.
+                ApplyCardPierceCountUpgrade(CardType.PierceShot, rewardData.value); // Pierce Shot 관통 수를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeBombShotDamage: // Bomb Shot 데미지 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.BombShot, rewardData.value); // Bomb Shot 데미지를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeBombShotRadius: // Bomb Shot 폭발 범위 강화 보상인지 확인한다.
+                ApplyCardExplosionRadiusUpgrade(CardType.BombShot, rewardData.value); // Bomb Shot 폭발 범위를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeHomingShotDamage: // Homing Shot 데미지 강화 보상인지 확인한다.
+                ApplyCardDamageUpgrade(CardType.HomingShot, rewardData.value); // Homing Shot 데미지를 강화한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.UpgradeHomingShotTurnSpeed: // Homing Shot 유도 회전 속도 강화 보상인지 확인한다.
+                ApplyCardHomingTurnSpeedUpgrade(CardType.HomingShot, rewardData.value); // Homing Shot 유도 회전 속도를 강화한다.
+                break; // switch문을 종료한다.
+
             default: // 정의되지 않은 보상 타입인 경우다.
                 Debug.LogWarning("Unknown Reward Type : " + rewardData.rewardType); // 알 수 없는 보상 타입 로그를 출력한다.
                 break; // switch문을 종료한다.
@@ -594,5 +675,38 @@ public class RewardManager : MonoBehaviour
         }
 
         relicManager.AddRelic(relicData); // 유물을 획득 처리한다.
+    }
+
+    private void ApplyCardPierceCountUpgrade(CardType cardType, float value) // 특정 카드 관통 수 강화 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardPierceCount(cardType, Mathf.RoundToInt(value)); // 특정 카드 관통 수를 증가시킨다.
+    }
+
+    private void ApplyCardExplosionRadiusUpgrade(CardType cardType, float value) // 특정 카드 폭발 범위 강화 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardExplosionRadius(cardType, value); // 특정 카드 폭발 범위를 증가시킨다.
+    }
+
+    private void ApplyCardHomingTurnSpeedUpgrade(CardType cardType, float value) // 특정 카드 유도 회전 속도 강화 보상을 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 보상 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardHomingTurnSpeed(cardType, value); // 특정 카드 유도 회전 속도를 증가시킨다.
     }
 }
