@@ -359,31 +359,30 @@ public class CardManager : MonoBehaviour
                 return new CardData("Heavy Shot", CardType.HeavyShot, 3f, 2.2f, 45, 8f, 4f, 1, 0f); // Heavy Shot 데이터를 반환한다.
 
             case CardType.PierceShot: // Pierce Shot 카드인지 확인한다.
-                {
-                    CardData cardData = new CardData("Pierce Shot", CardType.PierceShot, 2f, 1.6f, 14, 11f, 3f, 1, 0f); // Pierce Shot 데이터를 만든다.
-                    cardData.bulletEffectType = BulletEffectType.Pierce; // 관통 탄환으로 설정한다.
-                    cardData.pierceCount = 3; // 최대 3회 관통하도록 설정한다.
-                    return cardData; // Pierce Shot 데이터를 반환한다.
-                }
+            {
+                 CardData cardData = new CardData("Pierce Shot", CardType.PierceShot, 2f, 1.7f, 13, 10.5f, 3f, 1, 0f); // Pierce Shot 데이터를 만든다.
+                 cardData.bulletEffectType = BulletEffectType.Pierce; // 관통 탄환으로 설정한다.
+                 cardData.pierceCount = 3; // 최대 3회 관통하도록 설정한다.
+                 return cardData; // Pierce Shot 데이터를 반환한다.
+            }
 
             case CardType.BombShot: // Bomb Shot 카드인지 확인한다.
-                {
-                    CardData cardData = new CardData("Bomb Shot", CardType.BombShot, 3f, 2.4f, 18, 7f, 3.5f, 1, 0f); // Bomb Shot 데이터를 만든다.
-                    cardData.bulletEffectType = BulletEffectType.Bomb; // 폭발 탄환으로 설정한다.
-                    cardData.explosionRadius = 2.2f; // 폭발 범위를 설정한다.
-                    return cardData; // Bomb Shot 데이터를 반환한다.
-                }
+            {
+                 CardData cardData = new CardData("Bomb Shot", CardType.BombShot, 3f, 2.6f, 16, 7f, 3.5f, 1, 0f); // Bomb Shot 데이터를 만든다.
+                 cardData.bulletEffectType = BulletEffectType.Bomb; // 폭발 탄환으로 설정한다.
+                 cardData.explosionRadius = 2.0f; // 폭발 범위를 설정한다.
+                 return cardData; // Bomb Shot 데이터를 반환한다.
+            }
 
             case CardType.HomingShot: // Homing Shot 카드인지 확인한다.
-                {
-                    CardData cardData = new CardData("Homing Shot", CardType.HomingShot, 2f, 1.8f, 10, 8f, 4f, 1, 0f); // Homing Shot 데이터를 만든다.
-                    cardData.bulletEffectType = BulletEffectType.Homing; // 유도 탄환으로 설정한다.
-                    cardData.homingRange = 7f; // 유도 탐색 범위를 설정한다.
-                    cardData.homingTurnSpeed = 4f; // 유도 회전 속도를 설정한다.
-                    return cardData; // Homing Shot 데이터를 반환한다.
-                }
+            {
+                 CardData cardData = new CardData("Homing Shot", CardType.HomingShot, 2f, 1.9f, 9, 8f, 4f, 1, 0f); // Homing Shot 데이터를 만든다.
+                 cardData.bulletEffectType = BulletEffectType.Homing; // 유도 탄환으로 설정한다.
+                 cardData.homingRange = 7f; // 유도 탐색 범위를 설정한다.
+                 cardData.homingTurnSpeed = 4f; // 유도 회전 속도를 설정한다.
+                 return cardData; // Homing Shot 데이터를 반환한다.
+            }
         }
-
         return null; // 해당하는 카드가 없으면 null을 반환한다.
     }
 

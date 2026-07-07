@@ -76,12 +76,19 @@ public class RewardManager : MonoBehaviour
         rewardPool.Add(new RewardData("Upgrade: Pierce Shot", "Pierce Shot Damage +8", RewardType.UpgradePierceShotDamage, RewardRarity.Rare, 8f)); // Pierce Shot 데미지 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Bomb Shot", "Bomb Shot Damage +10", RewardType.UpgradeBombShotDamage, RewardRarity.Rare, 10f)); // Bomb Shot 데미지 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Homing Shot", "Homing Shot Damage +6", RewardType.UpgradeHomingShotDamage, RewardRarity.Rare, 6f)); // Homing Shot 데미지 강화 보상을 추가한다.
-        
+        rewardPool.Add(new RewardData("Relic: Blast Core", "Bomb Shot Damage +12", RewardType.RelicBlastCore, RewardRarity.Rare, 12f)); // Blast Core 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Smart Chip", "Homing Shot Turn Speed +1", RewardType.RelicSmartChip, RewardRarity.Rare, 1f)); // Smart Chip 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Pierce Engine", "Pierce Shot Damage +6", RewardType.RelicPierceEngine, RewardRarity.Rare, 6f)); // Pierce Engine 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Piercing Needle", "Pierce Shot Pierce Count +1", RewardType.RelicPiercingNeedle, RewardRarity.Rare, 1f)); // Piercing Needle 유물 보상을 추가한다.
+
         rewardPool.Add(new RewardData("Upgrade: Pierce Core", "Pierce Shot Pierce Count +1", RewardType.UpgradePierceShotPierceCount, RewardRarity.Epic, 1f)); // Pierce Shot 관통 수 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Bomb Radius", "Bomb Shot Explosion Radius +0.5", RewardType.UpgradeBombShotRadius, RewardRarity.Epic, 0.5f)); // Bomb Shot 폭발 범위 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Homing Core", "Homing Shot Turn Speed +1", RewardType.UpgradeHomingShotTurnSpeed, RewardRarity.Epic, 1f)); // Homing Shot 유도 회전 속도 강화 보상을 추가한다.
         rewardPool.Add(new RewardData("Relic: Heavy Core", "Heavy Shot Damage +20", RewardType.RelicHeavyCore, RewardRarity.Epic, 20f)); // Heavy Core 유물 보상을 추가한다.
         rewardPool.Add(new RewardData("Upgrade: Heavy Shot", "Heavy Shot Damage +15", RewardType.UpgradeHeavyShotDamage, RewardRarity.Epic, 15f)); // Heavy Shot 피해량 강화 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Piercing Needle", "Pierce Shot Pierce Count +1", RewardType.RelicPiercingNeedle, RewardRarity.Rare, 1f)); // Piercing Needle 유물 보상을 추가한다.
+        rewardPool.Add(new RewardData("Relic: Blast Powder", "Bomb Shot Explosion Radius +0.5", RewardType.RelicBlastPowder, RewardRarity.Epic, 0.5f)); // Blast Powder 유물 보상을 추가한다.
+       
     }
 
     public void ShowRewardPanel() // 보상 패널을 표시한다.
@@ -304,6 +311,21 @@ public class RewardManager : MonoBehaviour
             case RewardType.UpgradeHomingShotTurnSpeed: // Homing Shot 유도 회전 속도 강화 보상인지 확인한다.
                 return cardManager.HasCard(CardType.HomingShot); // Homing Shot을 가지고 있을 때만 등장한다.
 
+            case RewardType.RelicPiercingNeedle: // Piercing Needle 유물 보상인지 확인한다.
+                return IsRelicAvailable(RelicType.PiercingNeedle) && cardManager.HasCard(CardType.PierceShot); // Pierce Shot이 있을 때만 등장한다.
+
+            case RewardType.RelicPierceEngine: // Pierce Engine 유물 보상인지 확인한다.
+                return IsRelicAvailable(RelicType.PierceEngine) && cardManager.HasCard(CardType.PierceShot); // Pierce Shot이 있을 때만 등장한다.
+
+            case RewardType.RelicBlastPowder: // Blast Powder 유물 보상인지 확인한다.
+                return IsRelicAvailable(RelicType.BlastPowder) && cardManager.HasCard(CardType.BombShot); // Bomb Shot이 있을 때만 등장한다.
+
+            case RewardType.RelicBlastCore: // Blast Core 유물 보상인지 확인한다.
+                return IsRelicAvailable(RelicType.BlastCore) && cardManager.HasCard(CardType.BombShot); // Bomb Shot이 있을 때만 등장한다.
+
+            case RewardType.RelicSmartChip: // Smart Chip 유물 보상인지 확인한다.
+                return IsRelicAvailable(RelicType.SmartChip) && cardManager.HasCard(CardType.HomingShot); // Homing Shot이 있을 때만 등장한다.
+
             default: // 일반 스탯 보상인 경우다.
                 return true; // 일반 보상은 항상 등장 가능하다.
         }
@@ -347,7 +369,12 @@ public class RewardManager : MonoBehaviour
             case RewardType.UpgradeBombShotRadius:
             case RewardType.UpgradeHomingShotDamage:
             case RewardType.UpgradeHomingShotTurnSpeed:
-                return true; // 카드 관련 보상이라고 반환한다.
+            case RewardType.RelicPiercingNeedle:
+            case RewardType.RelicPierceEngine:
+            case RewardType.RelicBlastPowder:
+            case RewardType.RelicBlastCore:
+            case RewardType.RelicSmartChip:
+                return true; // 카드 보유 여부가 필요한 유물 보상이라고 반환한다.
 
             default:
                 return false; // 카드 관련 보상이 아니라고 반환한다.
@@ -535,9 +562,34 @@ public class RewardManager : MonoBehaviour
                 ApplyCardHomingTurnSpeedUpgrade(CardType.HomingShot, rewardData.value); // Homing Shot 유도 회전 속도를 강화한다.
                 break; // switch문을 종료한다.
 
+            case RewardType.RelicPiercingNeedle: // Piercing Needle 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Piercing Needle", "Pierce Shot Pierce Count +1", RelicType.PiercingNeedle, rewardData.value)); // Piercing Needle 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicPierceEngine: // Pierce Engine 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Pierce Engine", "Pierce Shot Damage +6", RelicType.PierceEngine, rewardData.value)); // Pierce Engine 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicBlastPowder: // Blast Powder 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Blast Powder", "Bomb Shot Explosion Radius +0.5", RelicType.BlastPowder, rewardData.value)); // Blast Powder 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicBlastCore: // Blast Core 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Blast Core", "Bomb Shot Damage +12", RelicType.BlastCore, rewardData.value)); // Blast Core 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+            case RewardType.RelicSmartChip: // Smart Chip 유물 보상인지 확인한다.
+                ApplyRelicReward(new RelicData("Smart Chip", "Homing Shot Turn Speed +1", RelicType.SmartChip, rewardData.value)); // Smart Chip 유물을 추가한다.
+                break; // switch문을 종료한다.
+
+
+
             default: // 정의되지 않은 보상 타입인 경우다.
                 Debug.LogWarning("Unknown Reward Type : " + rewardData.rewardType); // 알 수 없는 보상 타입 로그를 출력한다.
                 break; // switch문을 종료한다.
+
+
+
         }
     }
 

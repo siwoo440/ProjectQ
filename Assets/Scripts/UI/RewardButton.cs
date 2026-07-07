@@ -69,6 +69,11 @@ public class RewardButton : MonoBehaviour
             case RewardType.RelicWideBarrel: // Wide Barrel 유물 보상인지 확인한다.
             case RewardType.RelicRapidBattery: // Rapid Battery 유물 보상인지 확인한다.
             case RewardType.RelicHeavyCore: // Heavy Core 유물 보상인지 확인한다.
+            case RewardType.RelicPiercingNeedle: // Piercing Needle 유물 보상인지 확인한다.
+            case RewardType.RelicPierceEngine: // Pierce Engine 유물 보상인지 확인한다.
+            case RewardType.RelicBlastPowder: // Blast Powder 유물 보상인지 확인한다.
+            case RewardType.RelicBlastCore: // Blast Core 유물 보상인지 확인한다.
+            case RewardType.RelicSmartChip: // Smart Chip 유물 보상인지 확인한다.
                 return "Relic"; // 유물 보상이라고 반환한다.
 
             default: // 그 외 보상인 경우다.

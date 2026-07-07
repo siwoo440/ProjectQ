@@ -12,6 +12,8 @@ public class RelicManager : MonoBehaviour
 
     [Header("Owned Relics")]
     public List<RelicData> ownedRelics = new List<RelicData>(); // 현재 보유한 유물 목록을 저장한다.
+    private List<RelicComboType> activatedCombos = new List<RelicComboType>(); // 이미 발동된 유물 조합 목록을 저장한다.
+
 
     private void Start() // 시작 시 참조와 UI를 초기화한다.
     {
@@ -29,6 +31,7 @@ public class RelicManager : MonoBehaviour
         {
             relicSlotUI = FindFirstObjectByType<RelicSlotUI>(); // 씬에서 RelicSlotUI를 찾는다.
         }
+
 
         UpdateRelicUI(); // 유물 UI를 갱신한다.
     }
@@ -56,9 +59,9 @@ public class RelicManager : MonoBehaviour
             return; // 중복 유물은 추가하지 않는다.
         }
 
-        ownedRelics.Add(relicData); // 보유 유물 목록에 추가한다.
-
-        ApplyRelicOnAcquire(relicData); // 획득 즉시 적용되는 유물 효과를 처리한다.
+        ownedRelics.Add(relicData); // 유물을 보유 목록에 추가한다.
+        ApplyRelicOnAcquire(relicData); // 유물 획득 효과를 적용한다.
+        CheckRelicCombos(); // 유물 획득 후 조합 효과를 확인한다.
         UpdateRelicUI(); // 유물 UI를 갱신한다.
 
         Debug.Log("Relic Added : " + relicData.relicName); // 유물 획득 로그를 출력한다.
@@ -106,6 +109,26 @@ public class RelicManager : MonoBehaviour
 
             case RelicType.HeavyCore: // Heavy Core 유물인지 확인한다.
                 ApplyHeavyCore(relicData.value); // Heavy Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+            
+            case RelicType.PiercingNeedle: // Piercing Needle 유물인지 확인한다.
+                ApplyPiercingNeedle(relicData.value); // Pierce Shot 관통 수 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.PierceEngine: // Pierce Engine 유물인지 확인한다.
+                ApplyPierceEngine(relicData.value); // Pierce Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.BlastPowder: // Blast Powder 유물인지 확인한다.
+                ApplyBlastPowder(relicData.value); // Bomb Shot 폭발 범위 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.BlastCore: // Blast Core 유물인지 확인한다.
+                ApplyBlastCore(relicData.value); // Bomb Shot 데미지 증가 효과를 적용한다.
+                break; // switch문을 종료한다.
+
+            case RelicType.SmartChip: // Smart Chip 유물인지 확인한다.
+                ApplySmartChip(relicData.value); // Homing Shot 유도 회전 속도 증가 효과를 적용한다.
                 break; // switch문을 종료한다.
         }
     }
@@ -244,5 +267,148 @@ public class RelicManager : MonoBehaviour
         relicSlotUI.UpdateRelicSlots(ownedRelics); // 유물 UI에 보유 유물 목록을 전달한다.
     }
 
+    private void ApplyPiercingNeedle(float value) // Piercing Needle 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
 
+        cardManager.UpgradeCardPierceCount(CardType.PierceShot, Mathf.RoundToInt(value)); // Pierce Shot 관통 수를 증가시킨다.
+        Debug.Log("Piercing Needle Applied : Pierce Shot Pierce Count +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyPierceEngine(float value) // Pierce Engine 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardDamage(CardType.PierceShot, Mathf.RoundToInt(value)); // Pierce Shot 데미지를 증가시킨다.
+        Debug.Log("Pierce Engine Applied : Pierce Shot Damage +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyBlastPowder(float value) // Blast Powder 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardExplosionRadius(CardType.BombShot, value); // Bomb Shot 폭발 범위를 증가시킨다.
+        Debug.Log("Blast Powder Applied : Bomb Shot Explosion Radius +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplyBlastCore(float value) // Blast Core 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardDamage(CardType.BombShot, Mathf.RoundToInt(value)); // Bomb Shot 데미지를 증가시킨다.
+        Debug.Log("Blast Core Applied : Bomb Shot Damage +" + value); // 적용 로그를 출력한다.
+    }
+
+    private void ApplySmartChip(float value) // Smart Chip 효과를 적용한다.
+    {
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 효과 적용을 중단한다.
+        }
+
+        cardManager.UpgradeCardHomingTurnSpeed(CardType.HomingShot, value); // Homing Shot 유도 회전 속도를 증가시킨다.
+        Debug.Log("Smart Chip Applied : Homing Shot Turn Speed +" + value); // 적용 로그를 출력한다.
+    }
+    private void CheckRelicCombos() // 현재 보유 유물과 카드 상태를 확인하여 조합 효과를 발동한다.
+    {
+        CheckPiercingArsenalCombo(); // 관통 빌드 조합을 확인한다.
+        CheckVolatileReactorCombo(); // 폭발 빌드 조합을 확인한다.
+        CheckSmartGuidanceCombo(); // 유도 빌드 조합을 확인한다.
+    }
+    private bool HasActivatedCombo(RelicComboType comboType) // 이미 발동한 조합인지 확인한다.
+    {
+        return activatedCombos.Contains(comboType); // 발동된 조합 목록에 있는지 반환한다.
+    }
+
+    private void AddActivatedCombo(RelicComboType comboType) // 조합 발동 목록에 조합을 추가한다.
+    {
+        if (HasActivatedCombo(comboType)) return; // 이미 발동한 조합이면 추가하지 않는다.
+
+        activatedCombos.Add(comboType); // 발동된 조합 목록에 추가한다.
+    }
+    private void CheckPiercingArsenalCombo() // Piercing Arsenal 조합 조건을 확인한다.
+    {
+        if (HasActivatedCombo(RelicComboType.PiercingArsenal)) return; // 이미 발동했다면 실행하지 않는다.
+
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 조합 확인을 중단한다.
+        }
+
+        if (cardManager.HasCard(CardType.PierceShot) == false) return; // Pierce Shot이 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.PiercingNeedle) == false) return; // Piercing Needle이 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.PierceEngine) == false) return; // Pierce Engine이 없으면 발동하지 않는다.
+
+        cardManager.UpgradeCardDamage(CardType.PierceShot, 4); // Pierce Shot 데미지를 추가로 증가시킨다.
+        cardManager.UpgradeCardPierceCount(CardType.PierceShot, 1); // Pierce Shot 관통 수를 추가로 증가시킨다.
+
+        AddActivatedCombo(RelicComboType.PiercingArsenal); // 조합 발동 상태를 저장한다.
+
+        Debug.Log("Combo Activated : Piercing Arsenal"); // 조합 발동 로그를 출력한다.
+    }
+    private void CheckVolatileReactorCombo() // Volatile Reactor 조합 조건을 확인한다.
+    {
+        if (HasActivatedCombo(RelicComboType.VolatileReactor)) return; // 이미 발동했다면 실행하지 않는다.
+
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 조합 확인을 중단한다.
+        }
+
+        if (cardManager.HasCard(CardType.BombShot) == false) return; // Bomb Shot이 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.BlastPowder) == false) return; // Blast Powder가 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.BlastCore) == false) return; // Blast Core가 없으면 발동하지 않는다.
+
+        cardManager.UpgradeCardExplosionRadius(CardType.BombShot, 0.3f); // Bomb Shot 폭발 반경을 추가로 증가시킨다.
+        cardManager.UpgradeCardCooldown(CardType.BombShot, 0.2f); // Bomb Shot 쿨타임을 추가로 감소시킨다.
+
+        AddActivatedCombo(RelicComboType.VolatileReactor); // 조합 발동 상태를 저장한다.
+
+        Debug.Log("Combo Activated : Volatile Reactor"); // 조합 발동 로그를 출력한다.
+    }
+
+    private void CheckSmartGuidanceCombo() // Smart Guidance 조합 조건을 확인한다.
+    {
+        if (HasActivatedCombo(RelicComboType.SmartGuidance)) return; // 이미 발동했다면 실행하지 않는다.
+
+        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        {
+            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
+            return; // 조합 확인을 중단한다.
+        }
+
+        if (cardManager.HasCard(CardType.HomingShot) == false) return; // Homing Shot이 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.SmartChip) == false) return; // Smart Chip이 없으면 발동하지 않는다.
+        if (HasRelic(RelicType.BulletEngine) == false) return; // Bullet Engine이 없으면 발동하지 않는다.
+
+        cardManager.UpgradeCardDamage(CardType.HomingShot, 4); // Homing Shot 데미지를 추가로 증가시킨다.
+        cardManager.UpgradeCardHomingTurnSpeed(CardType.HomingShot, 0.7f); // Homing Shot 유도 회전 속도를 추가로 증가시킨다.
+
+        AddActivatedCombo(RelicComboType.SmartGuidance); // 조합 발동 상태를 저장한다.
+
+        Debug.Log("Combo Activated : Smart Guidance"); // 조합 발동 로그를 출력한다.
+    }
+    public int GetActivatedComboCount() // 발동된 조합 수를 반환한다.
+    {
+        return activatedCombos.Count; // 발동된 조합 목록 개수를 반환한다.
+    }
 }

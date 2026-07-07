@@ -37,5 +37,11 @@ public enum RewardType
     UpgradeBombShotDamage, // Bomb Shot 데미지 강화 보상이다.
     UpgradeBombShotRadius, // Bomb Shot 폭발 범위 강화 보상이다.
     UpgradeHomingShotDamage, // Homing Shot 데미지 강화 보상이다.
-    UpgradeHomingShotTurnSpeed // Homing Shot 유도 회전 속도 강화 보상이다.
+    UpgradeHomingShotTurnSpeed, // Homing Shot 유도 회전 속도 강화 보상이다.
+
+    RelicPiercingNeedle, // Piercing Needle 유물 획득 보상이다.
+    RelicPierceEngine, // Pierce Engine 유물 획득 보상이다.
+    RelicBlastPowder, // Blast Powder 유물 획득 보상이다.
+    RelicBlastCore, // Blast Core 유물 획득 보상이다.
+    RelicSmartChip // Smart Chip 유물 획득 보상이다.
 }
