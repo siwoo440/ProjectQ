@@ -139,7 +139,7 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
 
         if (floor == 0) // 첫 층 확인
         {
-            return StageNodeType.NormalBattle; // 일반 전투 반환
+            return StageNodeType.BossBattle; // 보스 전투 테스트 반환
         }
 
         if (floor == floorCount - 2) // 보스 직전 층 확인

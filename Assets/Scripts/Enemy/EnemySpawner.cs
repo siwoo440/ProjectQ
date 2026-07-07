@@ -1,154 +1,257 @@
-using System.Collections.Generic;
-using UnityEngine;
+using System.Collections.Generic; // 리스트 사용
+using UnityEngine; // Unity 기본 기능 사용
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : MonoBehaviour // 적 생성 관리 클래스
 {
-    [Header("Spawn Settings")]
-    public GameObject enemyPrefab; // 기존 단일 적 프리팹을 저장한다.
-    public GameObject[] enemyPrefabs; // 여러 종류의 적 프리팹을 저장한다.
-    public Transform[] spawnPoints; // 적이 생성될 위치들을 저장한다.
+    [Header("Spawn Settings")] // 스폰 설정 제목
+    public GameObject enemyPrefab; // 기본 적 프리팹
 
-    [Header("Battle Type Settings")]
-    public BattleType currentBattleType = BattleType.Normal; // 현재 전투 타입을 저장한다.
-    public float eliteEnemyCountMultiplier = 1.3f; // 엘리트 전투의 적 수 배율을 저장한다.
-    public float eliteEnemyHealthMultiplier = 1.5f; // 엘리트 전투의 적 체력 배율을 저장한다.
-    public float bossEnemyCountMultiplier = 0.7f; // 보스 전투의 임시 적 수 배율을 저장한다.
-    public float bossEnemyHealthMultiplier = 2.5f; // 보스 전투의 임시 적 체력 배율을 저장한다.
+    public GameObject[] enemyPrefabs; // 여러 적 프리팹 배열
 
-    [Header("Difficulty Settings")]
-    public int baseEnemyCount = 3; // 첫 전투의 기본 적 수를 저장한다.
-    public int enemyCountIncreasePerBattle = 1; // 전투마다 증가할 적 수를 저장한다.
-    public int baseEnemyHealth = 50; // 첫 전투의 기본 적 체력을 저장한다.
-    public int enemyHealthIncreasePerBattle = 10; // 전투마다 증가할 적 체력을 저장한다.
+    public Transform[] spawnPoints; // 일반 적 생성 위치 배열
 
-    public void SpawnEnemies(BattleManager battleManager, int battleNumber) // 전투 번호에 맞춰 적을 생성한다.
+    [Header("Battle Type Settings")] // 전투 타입 설정 제목
+    public BattleType currentBattleType = BattleType.Normal; // 현재 전투 타입
+
+    public float eliteEnemyCountMultiplier = 1.3f; // 엘리트 전투 적 수 배율
+
+    public float eliteEnemyHealthMultiplier = 1.5f; // 엘리트 전투 적 체력 배율
+
+    public float bossEnemyCountMultiplier = 0.7f; // 보스 전투 임시 적 수 배율
+
+    public float bossEnemyHealthMultiplier = 2.5f; // 보스 전투 임시 적 체력 배율
+
+    [Header("Difficulty Settings")] // 난이도 설정 제목
+    public int baseEnemyCount = 3; // 기본 적 수
+
+    public int enemyCountIncreasePerBattle = 1; // 전투마다 증가할 적 수
+
+    public int baseEnemyHealth = 50; // 기본 적 체력
+
+    public int enemyHealthIncreasePerBattle = 10; // 전투마다 증가할 적 체력
+
+    [Header("Boss Settings")] // 보스 설정 제목
+    public GameObject bossPrefab; // 보스 프리팹
+
+    public Transform bossSpawnPoint; // 보스 생성 위치
+
+    public int bossMaxHealth = 500; // 보스 최대 체력
+
+    public string bossDisplayName = "BOSS"; // 보스 UI 표시 이름
+
+    public BossHealthUIController bossHealthUIController; // 보스 체력 UI 컨트롤러
+
+    private void Awake() // 초기화 함수
     {
-        if (battleManager == null) // BattleManager가 연결되지 않았는지 확인한다.
+        FindBossHealthUIIfNeeded(); // 보스 체력 UI 자동 검색
+    }
+
+    public void SpawnEnemies(BattleManager battleManager, int battleNumber) // 전투 번호에 맞춰 적 생성 함수
+    {
+        if (battleManager == null) // BattleManager 연결 확인
         {
-            Debug.LogError("BattleManager is not assigned."); // 오류 로그를 출력한다.
-            return; // 적 생성을 중단한다.
+            Debug.LogError("BattleManager is not assigned."); // 오류 로그 출력
+            return; // 적 생성 중단
         }
 
-        if (spawnPoints == null || spawnPoints.Length == 0) // 스폰 포인트가 없는지 확인한다.
+        FindBossHealthUIIfNeeded(); // 보스 체력 UI 자동 검색
+
+        if (bossHealthUIController != null) // 보스 체력 UI 확인
         {
-            Debug.LogError("Spawn Points are not assigned."); // 오류 로그를 출력한다.
-            return; // 적 생성을 중단한다.
+            bossHealthUIController.Hide(); // 전투 시작 시 보스 체력 UI 숨김
         }
 
-        int enemyCount = GetEnemyCount(battleNumber); // 전투 번호와 전투 타입에 맞는 적 수를 계산한다.
-        int enemyHealth = GetEnemyHealth(battleNumber); // 전투 번호와 전투 타입에 맞는 적 체력을 계산한다.
-
-        Debug.Log("Current Battle Type : " + currentBattleType); // 현재 전투 타입을 로그로 출력한다.
-        Debug.Log("Spawn Enemy Count : " + enemyCount); // 생성할 적 수를 로그로 출력한다.
-        Debug.Log("Enemy HP For This Battle : " + enemyHealth); // 이번 전투 적 체력을 로그로 출력한다.
-
-        for (int i = 0; i < enemyCount; i++) // 생성할 적 수만큼 반복한다.
+        if (currentBattleType == BattleType.Boss) // 보스 전투 확인
         {
-            GameObject selectedPrefab = GetEnemyPrefab(battleNumber); // 이번에 생성할 적 프리팹을 가져온다.
+            SpawnBoss(battleManager); // 보스 생성
+            return; // 일반 적 생성 중단
+        }
 
-            if (selectedPrefab == null) // 선택된 프리팹이 없는지 확인한다.
+        if (spawnPoints == null || spawnPoints.Length == 0) // 스폰 포인트 확인
+        {
+            Debug.LogError("Spawn Points are not assigned."); // 오류 로그 출력
+            return; // 적 생성 중단
+        }
+
+        int enemyCount = GetEnemyCount(battleNumber); // 전투 번호별 적 수 계산
+
+        int enemyHealth = GetEnemyHealth(battleNumber); // 전투 번호별 적 체력 계산
+
+        Debug.Log("Current Battle Type : " + currentBattleType); // 현재 전투 타입 로그
+
+        Debug.Log("Spawn Enemy Count : " + enemyCount); // 적 수 로그
+
+        Debug.Log("Enemy HP For This Battle : " + enemyHealth); // 적 체력 로그
+
+        for (int i = 0; i < enemyCount; i++) // 적 수만큼 반복
+        {
+            GameObject selectedPrefab = GetEnemyPrefab(battleNumber); // 생성할 적 프리팹 선택
+
+            if (selectedPrefab == null) // 적 프리팹 확인
             {
-                Debug.LogError("Enemy Prefab is not assigned."); // 오류 로그를 출력한다.
-                continue; // 이번 적 생성을 건너뛴다.
+                Debug.LogError("Enemy Prefab is not assigned."); // 오류 로그 출력
+                continue; // 이번 생성 건너뛰기
             }
 
-            Transform spawnPoint = spawnPoints[i % spawnPoints.Length]; // 사용할 스폰 포인트를 선택한다.
+            Transform spawnPoint = spawnPoints[i % spawnPoints.Length]; // 사용할 스폰 위치 선택
 
-            if (spawnPoint == null) // 스폰 포인트가 비어 있는지 확인한다.
+            if (spawnPoint == null) // 스폰 위치 확인
             {
-                Debug.LogWarning("Empty SpawnPoint. Index : " + i); // 경고 로그를 출력한다.
-                continue; // 이번 적 생성을 건너뛴다.
+                Debug.LogWarning("Empty SpawnPoint. Index : " + i); // 경고 로그 출력
+                continue; // 이번 생성 건너뛰기
             }
 
-            GameObject enemyObject = Instantiate(selectedPrefab, spawnPoint.position, Quaternion.identity); // 적을 생성한다.
-            enemyObject.name = selectedPrefab.name + "_Battle" + battleNumber + "_" + (i + 1); // 생성된 적 이름을 설정한다.
+            GameObject enemyObject = Instantiate(selectedPrefab, spawnPoint.position, Quaternion.identity); // 적 오브젝트 생성
 
-            EnemyHealth enemyHealthComponent = enemyObject.GetComponent<EnemyHealth>(); // 적 체력 컴포넌트를 가져온다.
+            enemyObject.name = selectedPrefab.name + "_Battle" + battleNumber + "_" + (i + 1); // 적 이름 설정
 
-            if (enemyHealthComponent == null) // EnemyHealth가 없는지 확인한다.
+            EnemyHealth enemyHealthComponent = enemyObject.GetComponent<EnemyHealth>(); // 적 체력 컴포넌트 가져오기
+
+            if (enemyHealthComponent == null) // 적 체력 컴포넌트 확인
             {
-                Debug.LogError(enemyObject.name + " has no EnemyHealth."); // 오류 로그를 출력한다.
-                continue; // 등록을 건너뛴다.
+                Debug.LogError(enemyObject.name + " has no EnemyHealth."); // 오류 로그 출력
+                continue; // 등록 건너뛰기
             }
 
-            enemyHealthComponent.SetMaxHealth(enemyHealth); // 전투 번호와 전투 타입에 맞는 체력을 설정한다.
-            battleManager.RegisterEnemy(enemyHealthComponent); // BattleManager에 적을 등록한다.
+            enemyHealthComponent.SetMaxHealth(enemyHealth); // 적 최대 체력 설정
+
+            battleManager.RegisterEnemy(enemyHealthComponent); // BattleManager에 적 등록
         }
     }
 
-    public void SetBattleType(BattleType newBattleType) // 현재 전투 타입을 설정한다.
+    public void SetBattleType(BattleType newBattleType) // 전투 타입 설정 함수
     {
-        currentBattleType = newBattleType; // 전달받은 전투 타입을 저장한다.
-        Debug.Log("EnemySpawner Battle Type Set : " + currentBattleType); // 전투 타입 변경 로그를 출력한다.
+        currentBattleType = newBattleType; // 전투 타입 저장
+
+        Debug.Log("EnemySpawner Battle Type Set : " + currentBattleType); // 전투 타입 로그
     }
 
-    private GameObject GetEnemyPrefab(int battleNumber) // 전투 번호에 따라 사용할 수 있는 적 프리팹 중 하나를 고른다.
+    private void SpawnBoss(BattleManager battleManager) // 보스 생성 함수
     {
-        List<GameObject> availablePrefabs = new List<GameObject>(); // 이번 전투에서 사용할 수 있는 적 목록을 만든다.
-
-        if (enemyPrefabs != null && enemyPrefabs.Length > 0) // 여러 적 프리팹 배열이 있는지 확인한다.
+        if (bossPrefab == null) // 보스 프리팹 확인
         {
-            int unlockedCount = Mathf.Clamp(battleNumber, 1, enemyPrefabs.Length); // 전투 번호에 따라 해금된 적 수를 계산한다.
+            Debug.LogError("Boss Prefab is not assigned."); // 오류 로그 출력
+            return; // 보스 생성 중단
+        }
 
-            for (int i = 0; i < unlockedCount; i++) // 해금된 적 수만큼 반복한다.
+        if (bossSpawnPoint == null) // 보스 생성 위치 확인
+        {
+            Debug.LogError("Boss Spawn Point is not assigned."); // 오류 로그 출력
+            return; // 보스 생성 중단
+        }
+
+        GameObject bossObject = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity); // 보스 오브젝트 생성
+
+        bossObject.name = bossPrefab.name + "_Boss"; // 보스 이름 설정
+
+        EnemyHealth bossHealth = bossObject.GetComponent<EnemyHealth>(); // 보스 체력 컴포넌트 가져오기
+
+        if (bossHealth == null) // 보스 체력 컴포넌트 확인
+        {
+            Debug.LogError(bossObject.name + " has no EnemyHealth."); // 오류 로그 출력
+            return; // 보스 등록 중단
+        }
+
+        bossHealth.SetMaxHealth(bossMaxHealth); // 보스 최대 체력 설정
+
+        battleManager.RegisterEnemy(bossHealth); // BattleManager에 보스 등록
+
+        FindBossHealthUIIfNeeded(); // 보스 체력 UI 자동 검색
+
+        if (bossHealthUIController != null) // 보스 체력 UI 확인
+        {
+            bossHealthUIController.Show(bossHealth, bossDisplayName); // 보스 체력 UI 표시
+        }
+        else // 보스 체력 UI 없음
+        {
+            Debug.LogWarning("Boss Health UI Controller is not assigned."); // 경고 로그 출력
+        }
+
+        Debug.Log("Boss Spawned : " + bossObject.name); // 보스 생성 로그
+    }
+
+    private void FindBossHealthUIIfNeeded() // 보스 체력 UI 자동 검색 함수
+    {
+        if (bossHealthUIController != null) // 이미 연결된 경우 확인
+        {
+            return; // 검색 중단
+        }
+
+        bossHealthUIController = FindFirstObjectByType<BossHealthUIController>(); // 씬에서 보스 UI 검색
+    }
+
+    private GameObject GetEnemyPrefab(int battleNumber) // 전투 번호별 적 프리팹 선택 함수
+    {
+        List<GameObject> availablePrefabs = new List<GameObject>(); // 사용 가능한 적 목록 생성
+
+        if (enemyPrefabs != null && enemyPrefabs.Length > 0) // 여러 적 프리팹 확인
+        {
+            int unlockedCount = Mathf.Clamp(battleNumber, 1, enemyPrefabs.Length); // 해금된 적 수 계산
+
+            for (int i = 0; i < unlockedCount; i++) // 해금된 적 수만큼 반복
             {
-                if (enemyPrefabs[i] != null) // 프리팹이 비어 있지 않은지 확인한다.
+                if (enemyPrefabs[i] != null) // 적 프리팹 확인
                 {
-                    availablePrefabs.Add(enemyPrefabs[i]); // 사용 가능 목록에 추가한다.
+                    availablePrefabs.Add(enemyPrefabs[i]); // 사용 가능 목록 추가
                 }
             }
         }
 
-        if (availablePrefabs.Count > 0) // 사용 가능한 적이 있는지 확인한다.
+        if (availablePrefabs.Count > 0) // 사용 가능 적 존재 확인
         {
-            int randomIndex = Random.Range(0, availablePrefabs.Count); // 랜덤 인덱스를 뽑는다.
-            return availablePrefabs[randomIndex]; // 랜덤 적 프리팹을 반환한다.
+            int randomIndex = Random.Range(0, availablePrefabs.Count); // 랜덤 인덱스 선택
+
+            return availablePrefabs[randomIndex]; // 랜덤 적 반환
         }
 
-        return enemyPrefab; // 여러 프리팹이 없으면 기존 단일 프리팹을 반환한다.
+        return enemyPrefab; // 기본 적 반환
     }
 
-    private int GetEnemyCount(int battleNumber) // 전투 번호와 전투 타입에 따른 적 수를 계산한다.
+    private int GetEnemyCount(int battleNumber) // 전투 번호별 적 수 계산 함수
     {
-        int count = baseEnemyCount + ((battleNumber - 1) * enemyCountIncreasePerBattle); // 기본 적 수를 계산한다.
-        count = ApplyBattleTypeEnemyCount(count); // 전투 타입에 따라 적 수를 조정한다.
-        return Mathf.Max(count, 1); // 최소 1마리는 나오도록 반환한다.
+        int count = baseEnemyCount + ((battleNumber - 1) * enemyCountIncreasePerBattle); // 기본 적 수 계산
+
+        count = ApplyBattleTypeEnemyCount(count); // 전투 타입별 적 수 적용
+
+        return Mathf.Max(count, 1); // 최소 적 수 보정
     }
 
-    private int GetEnemyHealth(int battleNumber) // 전투 번호와 전투 타입에 따른 적 체력을 계산한다.
+    private int GetEnemyHealth(int battleNumber) // 전투 번호별 적 체력 계산 함수
     {
-        int health = baseEnemyHealth + ((battleNumber - 1) * enemyHealthIncreasePerBattle); // 기본 적 체력을 계산한다.
-        health = ApplyBattleTypeEnemyHealth(health); // 전투 타입에 따라 적 체력을 조정한다.
-        return Mathf.Max(health, 1); // 최소 체력 1 이상으로 반환한다.
+        int health = baseEnemyHealth + ((battleNumber - 1) * enemyHealthIncreasePerBattle); // 기본 체력 계산
+
+        health = ApplyBattleTypeEnemyHealth(health); // 전투 타입별 체력 적용
+
+        return Mathf.Max(health, 1); // 최소 체력 보정
     }
 
-    private int ApplyBattleTypeEnemyCount(int baseEnemyCount) // 전투 타입에 따라 적 수를 조정한다.
+    private int ApplyBattleTypeEnemyCount(int baseCount) // 전투 타입별 적 수 적용 함수
     {
-        if (currentBattleType == BattleType.Elite) // 엘리트 전투인지 확인한다.
+        if (currentBattleType == BattleType.Elite) // 엘리트 전투 확인
         {
-            return Mathf.Max(1, Mathf.RoundToInt(baseEnemyCount * eliteEnemyCountMultiplier)); // 엘리트 적 수를 반환한다.
+            return Mathf.Max(1, Mathf.RoundToInt(baseCount * eliteEnemyCountMultiplier)); // 엘리트 적 수 반환
         }
 
-        if (currentBattleType == BattleType.Boss) // 보스 전투인지 확인한다.
+        if (currentBattleType == BattleType.Boss) // 보스 전투 확인
         {
-            return Mathf.Max(1, Mathf.RoundToInt(baseEnemyCount * bossEnemyCountMultiplier)); // 보스 전투 임시 적 수를 반환한다.
+            return 1; // 보스 전투 적 수 반환
         }
 
-        return baseEnemyCount; // 일반 전투는 기본 적 수를 그대로 반환한다.
+        return baseCount; // 일반 전투 적 수 반환
     }
 
-    private int ApplyBattleTypeEnemyHealth(int baseEnemyHealth) // 전투 타입에 따라 적 체력을 조정한다.
+    private int ApplyBattleTypeEnemyHealth(int baseHealth) // 전투 타입별 적 체력 적용 함수
     {
-        if (currentBattleType == BattleType.Elite) // 엘리트 전투인지 확인한다.
+        if (currentBattleType == BattleType.Elite) // 엘리트 전투 확인
         {
-            return Mathf.Max(1, Mathf.RoundToInt(baseEnemyHealth * eliteEnemyHealthMultiplier)); // 엘리트 적 체력을 반환한다.
+            return Mathf.Max(1, Mathf.RoundToInt(baseHealth * eliteEnemyHealthMultiplier)); // 엘리트 체력 반환
         }
 
-        if (currentBattleType == BattleType.Boss) // 보스 전투인지 확인한다.
+        if (currentBattleType == BattleType.Boss) // 보스 전투 확인
         {
-            return Mathf.Max(1, Mathf.RoundToInt(baseEnemyHealth * bossEnemyHealthMultiplier)); // 보스 전투 임시 적 체력을 반환한다.
+            return bossMaxHealth; // 보스 체력 반환
         }
 
-        return baseEnemyHealth; // 일반 전투는 기본 체력을 그대로 반환한다.
+        return baseHealth; // 일반 전투 체력 반환
     }
 }
