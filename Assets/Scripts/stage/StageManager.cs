@@ -12,9 +12,11 @@ public class StageManager : MonoBehaviour
     [Header("Manager References")]
     public BattleManager battleManager; // 실제 전투 시작을 담당하는 BattleManager를 저장한다.
     public RelicManager relicManager; // 전투 시작 시 유물 효과를 적용할 RelicManager를 저장한다.
+    public EnemySpawner enemySpawner; // 전투 타입을 전달할 EnemySpawner를 저장한다.
 
     [Header("UI References")]
     public StageInfoUI stageInfoUI; // 현재 스테이지 정보를 표시할 UI를 저장한다.
+    public StageMapUI stageMapUI; // 노드맵 UI를 저장한다.
     public NextBattleUI nextBattleUI; // 다음 전투 버튼 UI를 저장한다.
 
     private int currentNodeIndex = -1; // 현재 진행 중인 노드 번호를 저장한다.
@@ -49,9 +51,19 @@ public class StageManager : MonoBehaviour
             relicManager = FindFirstObjectByType<RelicManager>(); // 씬에서 RelicManager를 찾는다.
         }
 
+        if (enemySpawner == null) // EnemySpawner가 연결되지 않았는지 확인한다.
+        {
+            enemySpawner = FindFirstObjectByType<EnemySpawner>(); // 씬에서 EnemySpawner를 찾는다.
+        }
+
         if (stageInfoUI == null) // StageInfoUI가 연결되지 않았는지 확인한다.
         {
             stageInfoUI = FindFirstObjectByType<StageInfoUI>(); // 씬에서 StageInfoUI를 찾는다.
+        }
+
+        if (stageMapUI == null) // StageMapUI가 연결되지 않았는지 확인한다.
+        {
+            stageMapUI = FindFirstObjectByType<StageMapUI>(); // 씬에서 StageMapUI를 찾는다.
         }
 
         if (nextBattleUI == null) // NextBattleUI가 연결되지 않았는지 확인한다.
@@ -144,21 +156,18 @@ public class StageManager : MonoBehaviour
 
         StageNodeData currentNode = stageNodes[currentNodeIndex]; // 현재 노드 데이터를 가져온다.
 
-        if (stageInfoUI != null) // StageInfoUI가 연결되어 있는지 확인한다.
-        {
-            stageInfoUI.UpdateStageInfo(currentNode, currentNodeIndex, stageNodes.Count); // 현재 노드 정보를 UI에 표시한다.
-        }
+        UpdateStageUIs(currentNode); // 스테이지 관련 UI를 갱신한다.
 
         Debug.Log("Start Stage Node : " + currentNode.nodeName + " / " + currentNode.nodeType); // 현재 노드 시작 로그를 출력한다.
 
         switch (currentNode.nodeType) // 현재 노드 타입을 확인한다.
         {
             case StageNodeType.NormalBattle: // 일반 전투 노드인지 확인한다.
-                StartBattleNode(currentNode); // 전투 노드를 시작한다.
+                StartBattleNode(currentNode, BattleType.Normal); // 일반 전투를 시작한다.
                 break; // switch문을 종료한다.
 
             case StageNodeType.EliteBattle: // 엘리트 전투 노드인지 확인한다.
-                StartBattleNode(currentNode); // 현재는 일반 전투처럼 시작한다.
+                StartBattleNode(currentNode, BattleType.Elite); // 엘리트 전투를 시작한다.
                 break; // switch문을 종료한다.
 
             case StageNodeType.Rest: // 휴식 노드인지 확인한다.
@@ -166,7 +175,7 @@ public class StageManager : MonoBehaviour
                 break; // switch문을 종료한다.
 
             case StageNodeType.BossBattle: // 보스 전투 노드인지 확인한다.
-                StartBattleNode(currentNode); // 현재는 일반 전투처럼 시작한다.
+                StartBattleNode(currentNode, BattleType.Boss); // 보스 전투를 시작한다.
                 break; // switch문을 종료한다.
 
             case StageNodeType.Event: // 이벤트 노드인지 확인한다.
@@ -175,9 +184,14 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    private void StartBattleNode(StageNodeData nodeData) // 전투 노드를 시작한다.
+    private void StartBattleNode(StageNodeData nodeData, BattleType battleType) // 전투 노드를 시작한다.
     {
         Time.timeScale = 1f; // 게임 시간을 정상 속도로 되돌린다.
+
+        if (enemySpawner != null) // EnemySpawner가 연결되어 있는지 확인한다.
+        {
+            enemySpawner.SetBattleType(battleType); // EnemySpawner에 전투 타입을 전달한다.
+        }
 
         if (relicManager != null) // RelicManager가 연결되어 있는지 확인한다.
         {
@@ -190,6 +204,7 @@ public class StageManager : MonoBehaviour
             return; // 전투 시작을 중단한다.
         }
 
+        Debug.Log("Start Battle Type : " + battleType); // 전투 타입 로그를 출력한다.
         battleManager.StartBattle(nodeData.battleNumber); // 기존 BattleManager에 전투 시작을 요청한다.
     }
 
@@ -198,7 +213,7 @@ public class StageManager : MonoBehaviour
         Debug.Log("Rest Node Reached : " + nodeData.nodeName); // 휴식 노드 도착 로그를 출력한다.
         Debug.Log("Rest node detail will be implemented later."); // 휴식 노드 상세 기능은 나중에 구현한다고 출력한다.
 
-        StartNextNode(); // 15일차에서는 휴식 노드를 임시로 자동 통과한다.
+        StartNextNode(); // 16일차에서는 휴식 노드를 임시로 자동 통과한다.
     }
 
     private void StartEventNode(StageNodeData nodeData) // 이벤트 노드를 처리한다.
@@ -206,7 +221,7 @@ public class StageManager : MonoBehaviour
         Debug.Log("Event Node Reached : " + nodeData.nodeName); // 이벤트 노드 도착 로그를 출력한다.
         Debug.Log("Event node detail will be implemented later."); // 이벤트 노드 상세 기능은 나중에 구현한다고 출력한다.
 
-        StartNextNode(); // 15일차에서는 이벤트 노드를 임시로 자동 통과한다.
+        StartNextNode(); // 16일차에서는 이벤트 노드를 임시로 자동 통과한다.
     }
 
     private void ChapterClear() // 챕터 클리어 처리를 한다.
@@ -221,7 +236,25 @@ public class StageManager : MonoBehaviour
             stageInfoUI.ShowChapterClear(); // 챕터 클리어 UI를 표시한다.
         }
 
+        if (stageMapUI != null) // StageMapUI가 연결되어 있는지 확인한다.
+        {
+            stageMapUI.RefreshStageMap(stageNodes, currentNodeIndex); // 노드맵 UI를 갱신한다.
+        }
+
         Debug.Log("Chapter Clear"); // 챕터 클리어 로그를 출력한다.
+    }
+
+    private void UpdateStageUIs(StageNodeData currentNode) // 스테이지 관련 UI를 갱신한다.
+    {
+        if (stageInfoUI != null) // StageInfoUI가 연결되어 있는지 확인한다.
+        {
+            stageInfoUI.UpdateStageInfo(currentNode, currentNodeIndex, stageNodes.Count); // 현재 노드 정보를 UI에 표시한다.
+        }
+
+        if (stageMapUI != null) // StageMapUI가 연결되어 있는지 확인한다.
+        {
+            stageMapUI.RefreshStageMap(stageNodes, currentNodeIndex); // 노드맵 UI를 갱신한다.
+        }
     }
 
     private void HideNextBattleUI() // 다음 전투 버튼 UI를 숨긴다.
@@ -247,5 +280,10 @@ public class StageManager : MonoBehaviour
     public bool IsChapterCleared() // 챕터 클리어 여부를 반환한다.
     {
         return isChapterCleared; // 챕터 클리어 여부를 반환한다.
+    }
+
+    public List<StageNodeData> GetStageNodes() // 현재 스테이지 노드 목록을 반환한다.
+    {
+        return stageNodes; // 스테이지 노드 목록을 반환한다.
     }
 }

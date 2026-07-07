@@ -414,9 +414,13 @@ public class RewardManager : MonoBehaviour
 
         Time.timeScale = 1f; // 게임 시간을 다시 흐르게 한다.
 
-        if (nextBattleUI != null) // 다음 전투 UI가 연결되어 있는지 확인한다.
+        if (GameFlowManager.Instance != null) // 맵 진행 관리자가 있는지 확인한다.
         {
-            nextBattleUI.Show(); // Next Battle 버튼을 표시한다.
+            GameFlowManager.Instance.CompleteActiveNodeAndReturnToMap(); // 현재 노드를 완료하고 맵 씬으로 돌아간다.
+        }
+        else if (nextBattleUI != null) // 맵 진행 관리자가 없고 기존 NextBattleUI가 있는지 확인한다.
+        {
+            nextBattleUI.Show(); // 기존 방식으로 다음 전투 버튼을 표시한다.
         }
         else // 다음 전투 UI가 없는 경우를 처리한다.
         {
