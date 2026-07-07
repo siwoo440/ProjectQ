@@ -1715,6 +1715,8 @@ MonoBehaviour:
   battleManager: {fileID: 1801146872}
   enemySpawner: {fileID: 609695027}
   relicManager: {fileID: 1434668163}
+  playerStats: {fileID: 1086770308}
+  cardManager: {fileID: 2134081833}
 --- !u!4 &860770406
 Transform:
   m_ObjectHideFlags: 0

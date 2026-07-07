@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -17,6 +18,9 @@ public class MapSceneUI : MonoBehaviour
     public Color lockedLineColor = new Color(0.35f, 0.35f, 0.35f, 0.7f); // 아직 선택할 수 없는 연결선 색상을 저장한다.
     public Color selectableLineColor = new Color(0.4f, 0.75f, 1f, 1f); // 현재 이동 가능한 연결선 색상을 저장한다.
     public Color clearedLineColor = new Color(0.4f, 0.9f, 0.45f, 1f); // 이미 지나간 연결선 색상을 저장한다.
+    
+    [Header("Scroll Map Reference")] // 스크롤 맵 참조 제목
+    public ScrollRect mapScrollRect; // 맵 스크롤 뷰
 
     private readonly List<MapNodeUI> spawnedNodes = new List<MapNodeUI>(); // 생성된 노드 UI 목록을 저장한다.
     private readonly List<GameObject> spawnedLines = new List<GameObject>(); // 생성된 연결선 UI 목록을 저장한다.
@@ -31,6 +35,7 @@ public class MapSceneUI : MonoBehaviour
 
         GameFlowManager.Instance.EnsureMapExists(); // 맵 데이터가 없으면 생성한다.
         RefreshMap(); // 맵 UI를 갱신한다.
+        StartCoroutine(SetMapScrollToBottom()); // 맵 시작 위치 아래 설정
     }
 
     public void RefreshMap() // 맵 UI를 새로 그린다.
@@ -202,5 +207,18 @@ public class MapSceneUI : MonoBehaviour
         }
 
         spawnedLines.Clear(); // 연결선 목록을 비운다.
+    }
+    private IEnumerator SetMapScrollToBottom() // 맵 스크롤 아래 이동 함수
+    {
+        yield return null; // UI 생성 대기
+
+        Canvas.ForceUpdateCanvases(); // 캔버스 갱신
+
+        if (mapScrollRect == null) // 스크롤 뷰 확인
+        {
+            yield break; // 실행 중단
+        }
+
+        mapScrollRect.verticalNormalizedPosition = 0f; // 아래쪽 위치 설정
     }
 }
