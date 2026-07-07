@@ -20,7 +20,7 @@ public class BattleProgressManager : MonoBehaviour
             nextBattleUI.Hide(); // 시작 시 Next Battle 버튼을 숨긴다.
         }
 
-        StartNextBattle(); // 첫 번째 전투를 시작한다.
+        //StartNextBattle(); // 첫 번째 전투를 시작한다.
     }
 
     public void StartNextBattle() // 다음 전투를 시작한다.
