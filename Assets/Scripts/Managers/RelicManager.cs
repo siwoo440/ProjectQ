@@ -14,25 +14,11 @@ public class RelicManager : MonoBehaviour
     public List<RelicData> ownedRelics = new List<RelicData>(); // 현재 보유한 유물 목록을 저장한다.
     private List<RelicComboType> activatedCombos = new List<RelicComboType>(); // 이미 발동된 유물 조합 목록을 저장한다.
 
-
     private void Start() // 시작 시 참조와 UI를 초기화한다.
     {
-        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
-        {
-            cardManager = FindFirstObjectByType<CardManager>(); // 씬에서 CardManager를 찾는다.
-        }
-
-        if (playerStats == null) // PlayerStats가 연결되지 않았는지 확인한다.
-        {
-            playerStats = FindFirstObjectByType<PlayerStats>(); // 씬에서 PlayerStats를 찾는다.
-        }
-
-        if (relicSlotUI == null) // RelicSlotUI가 연결되지 않았는지 확인한다.
-        {
-            relicSlotUI = FindFirstObjectByType<RelicSlotUI>(); // 씬에서 RelicSlotUI를 찾는다.
-        }
-
-
+        if (cardManager == null) cardManager = FindFirstObjectByType<CardManager>(); // CardManager 없음 -> 씬에서 검색
+        if (playerStats == null) playerStats = FindFirstObjectByType<PlayerStats>(); // PlayerStats 없음 -> 씬에서 검색
+        if (relicSlotUI == null) relicSlotUI = FindFirstObjectByType<RelicSlotUI>(); // RelicSlotUI 없음 -> 씬에서 검색
         UpdateRelicUI(); // 유물 UI를 갱신한다.
     }
 
@@ -67,69 +53,25 @@ public class RelicManager : MonoBehaviour
         Debug.Log("Relic Added : " + relicData.relicName); // 유물 획득 로그를 출력한다.
     }
 
-    private void ApplyRelicOnAcquire(RelicData relicData) // 유물 획득 시 즉시 적용할 효과를 처리한다.
+    private void ApplyRelicOnAcquire(RelicData relicData) // 유물 획득 시 즉시 적용 효과 처리
     {
-        switch (relicData.relicType) // 유물 타입을 확인한다.
+        switch (relicData.relicType) // 유물 타입 확인
         {
-            case RelicType.BloodCore: // Blood Core 유물인지 확인한다.
-                ApplyBloodCore(relicData.value); // 모든 카드 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.ManaStone: // Mana Stone 유물인지 확인한다.
-                ApplyManaStone(relicData.value); // MP 회복 속도 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.QuickGear: // Quick Gear 유물인지 확인한다.
-                ApplyQuickGear(relicData.value); // 모든 카드 쿨타임 감소 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.BulletEngine: // Bullet Engine 유물인지 확인한다.
-                ApplyBulletEngine(relicData.value); // 모든 카드 탄환 속도 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.ShieldFragment: // Shield Fragment 유물인지 확인한다.
-                Debug.Log("Shield Fragment will apply at battle start."); // 전투 시작 효과 로그를 출력한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.PixelLens: // Pixel Lens 유물인지 확인한다.
-                ApplyPixelLens(relicData.value); // Pixel Shot 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.FocusLens: // Focus Lens 유물인지 확인한다.
-                ApplyFocusLens(relicData.value); // Focus Shot 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.WideBarrel: // Wide Barrel 유물인지 확인한다.
-                ApplyWideBarrel(relicData.value); // Wide Shot 탄환 수 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.RapidBattery: // Rapid Battery 유물인지 확인한다.
-                ApplyRapidBattery(relicData.value); // Rapid Shot 쿨타임 감소 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.HeavyCore: // Heavy Core 유물인지 확인한다.
-                ApplyHeavyCore(relicData.value); // Heavy Shot 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-            
-            case RelicType.PiercingNeedle: // Piercing Needle 유물인지 확인한다.
-                ApplyPiercingNeedle(relicData.value); // Pierce Shot 관통 수 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.PierceEngine: // Pierce Engine 유물인지 확인한다.
-                ApplyPierceEngine(relicData.value); // Pierce Shot 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.BlastPowder: // Blast Powder 유물인지 확인한다.
-                ApplyBlastPowder(relicData.value); // Bomb Shot 폭발 범위 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.BlastCore: // Blast Core 유물인지 확인한다.
-                ApplyBlastCore(relicData.value); // Bomb Shot 데미지 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
-
-            case RelicType.SmartChip: // Smart Chip 유물인지 확인한다.
-                ApplySmartChip(relicData.value); // Homing Shot 유도 회전 속도 증가 효과를 적용한다.
-                break; // switch문을 종료한다.
+            case RelicType.BloodCore:       ApplyBloodCore(relicData.value);        break; // Blood Core -> 모든 카드 데미지 증가
+            case RelicType.ManaStone:       ApplyManaStone(relicData.value);        break; // Mana Stone -> MP 회복 속도 증가
+            case RelicType.QuickGear:       ApplyQuickGear(relicData.value);        break; // Quick Gear -> 모든 카드 쿨타임 감소
+            case RelicType.BulletEngine:    ApplyBulletEngine(relicData.value);     break; // Bullet Engine -> 모든 카드 탄환 속도 증가
+            case RelicType.ShieldFragment:  Debug.Log("Shield Fragment will apply at battle start."); break; // Shield Fragment -> 전투 시작 시 적용 예정
+            case RelicType.PixelLens:       ApplyPixelLens(relicData.value);        break; // Pixel Lens -> Pixel Shot 데미지 증가
+            case RelicType.FocusLens:       ApplyFocusLens(relicData.value);        break; // Focus Lens -> Focus Shot 데미지 증가
+            case RelicType.WideBarrel:      ApplyWideBarrel(relicData.value);       break; // Wide Barrel -> Wide Shot 탄환 수 증가
+            case RelicType.RapidBattery:    ApplyRapidBattery(relicData.value);     break; // Rapid Battery -> Rapid Shot 쿨타임 감소
+            case RelicType.HeavyCore:       ApplyHeavyCore(relicData.value);        break; // Heavy Core -> Heavy Shot 데미지 증가
+            case RelicType.PiercingNeedle:  ApplyPiercingNeedle(relicData.value);   break; // Piercing Needle -> Pierce Shot 관통 수 증가
+            case RelicType.PierceEngine:    ApplyPierceEngine(relicData.value);     break; // Pierce Engine -> Pierce Shot 데미지 증가
+            case RelicType.BlastPowder:     ApplyBlastPowder(relicData.value);      break; // Blast Powder -> Bomb Shot 폭발 범위 증가
+            case RelicType.BlastCore:       ApplyBlastCore(relicData.value);        break; // Blast Core -> Bomb Shot 데미지 증가
+            case RelicType.SmartChip:       ApplySmartChip(relicData.value);        break; // Smart Chip -> Homing Shot 유도 회전 속도 증가
         }
     }
 
@@ -140,9 +82,7 @@ public class RelicManager : MonoBehaviour
             RelicData relicData = ownedRelics[i]; // 현재 유물 데이터를 가져온다.
 
             if (relicData.relicType == RelicType.ShieldFragment) // Shield Fragment 유물인지 확인한다.
-            {
-                ApplyShieldFragment(relicData.value); // 전투 시작 보호막 효과를 적용한다.
-            }
+            {  ApplyShieldFragment(relicData.value); } // 전투 시작 보호막 효과를 적용한다.
         }
     }
 
@@ -150,10 +90,8 @@ public class RelicManager : MonoBehaviour
     {
         if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
         {
-            Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
-            return; // 효과 적용을 중단한다.
+            Debug.LogError("CardManager is not assigned."); return; // 오류 로그를 출력한다. -> 효과 적용을 중단한다.
         }
-
         cardManager.IncreaseBulletDamage(Mathf.RoundToInt(value)); // 모든 카드 추가 데미지를 증가시킨다.
     }
 
@@ -164,7 +102,6 @@ public class RelicManager : MonoBehaviour
             Debug.LogError("PlayerStats is not assigned."); // 오류 로그를 출력한다.
             return; // 효과 적용을 중단한다.
         }
-
         playerStats.IncreaseManaRegen(value); // MP 회복 속도를 증가시킨다.
     }
 
@@ -175,7 +112,6 @@ public class RelicManager : MonoBehaviour
             Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
             return; // 효과 적용을 중단한다.
         }
-
         cardManager.ReduceCooldown(value); // 모든 카드 쿨타임 감소량을 증가시킨다.
     }
     private void ApplyPixelLens(float value) // Pixel Lens 효과를 적용한다.

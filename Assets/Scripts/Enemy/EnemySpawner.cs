@@ -251,7 +251,6 @@ public class EnemySpawner : MonoBehaviour // 적 생성 관리 클래스
         {
             return bossMaxHealth; // 보스 체력 반환
         }
-
         return baseHealth; // 일반 전투 체력 반환
     }
 }

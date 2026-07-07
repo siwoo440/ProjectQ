@@ -102,7 +102,6 @@ public class RewardManager : MonoBehaviour
         }
 
         Time.timeScale = 0f; // 보상을 선택하는 동안 게임 시간을 정지한다.
-
         Debug.Log("Random Reward UI Opened"); // 보상 UI 표시 로그를 출력한다.
     }
 
@@ -163,34 +162,26 @@ public class RewardManager : MonoBehaviour
 
         return selectedReward; // 선택한 보상을 반환한다.
     }
-    private RewardRarity GetWeightedRandomRarity() // 가중치에 따라 보상 등급을 선택한다.
+
+
+
+    private RewardRarity GetWeightedRandomRarity() // 가중치 기반 보상 등급 선택 함수
     {
-        int safeCommonWeight = Mathf.Max(commonWeight, 0); // Common 가중치가 음수가 되지 않게 한다.
-        int safeRareWeight = Mathf.Max(rareWeight, 0); // Rare 가중치가 음수가 되지 않게 한다.
-        int safeEpicWeight = Mathf.Max(epicWeight, 0); // Epic 가중치가 음수가 되지 않게 한다.
+        int safeCommonWeight = Mathf.Max(commonWeight, 0); // Common 음수 방지
+        int safeRareWeight = Mathf.Max(rareWeight, 0); // Rare 음수 방지
+        int safeEpicWeight = Mathf.Max(epicWeight, 0); // Epic 음수 방지
 
-        int totalWeight = safeCommonWeight + safeRareWeight + safeEpicWeight; // 전체 가중치를 계산한다.
+        int totalWeight = safeCommonWeight + safeRareWeight + safeEpicWeight; // 전체 가중치 계산
 
-        if (totalWeight <= 0) // 전체 가중치가 0 이하인지 확인한다.
-        {
-            return RewardRarity.Common; // 안전을 위해 Common을 반환한다.
-        }
+        if (totalWeight <= 0) return RewardRarity.Common; // 전체 가중치 없음 -> Common 반환
+        int randomValue = Random.Range(0, totalWeight); // 랜덤 값 생성
 
-        int randomValue = Random.Range(0, totalWeight); // 전체 가중치 범위에서 랜덤 값을 뽑는다.
+        if (randomValue < safeCommonWeight) return RewardRarity.Common; // Common 범위 -> Common 반환
+        randomValue -= safeCommonWeight; // Common 범위 제외
 
-        if (randomValue < safeCommonWeight) // Common 범위에 들어왔는지 확인한다.
-        {
-            return RewardRarity.Common; // Common 등급을 반환한다.
-        }
+        if (randomValue < safeRareWeight) return RewardRarity.Rare; // Rare 범위 -> Rare 반환
 
-        randomValue -= safeCommonWeight; // Common 범위를 제외한다.
-
-        if (randomValue < safeRareWeight) // Rare 범위에 들어왔는지 확인한다.
-        {
-            return RewardRarity.Rare; // Rare 등급을 반환한다.
-        }
-
-        return RewardRarity.Epic; // 남은 범위는 Epic 등급으로 처리한다.
+        return RewardRarity.Epic; // 남은 범위 -> Epic 반환
     }
     private List<RewardData> GetRewardsByRarity(List<RewardData> rewardList, RewardRarity rarity) // 특정 등급의 보상만 골라낸다.
     {
@@ -222,112 +213,50 @@ public class RewardManager : MonoBehaviour
 
         return availableRewards; // 필터링된 보상 목록을 반환한다.
     }
-    private bool IsRewardAvailable(RewardData rewardData) // 특정 보상이 현재 등장 가능한지 확인한다.
+    private bool IsRewardAvailable(RewardData rewardData) // 보상 등장 가능 확인 함수
     {
-        if (rewardData == null) return false; // 보상 데이터가 없으면 등장하지 않게 한다.
+        if (rewardData == null) return false; // 보상 데이터 없음 -> 등장 불가
 
-        if (cardManager == null) // CardManager가 연결되지 않았는지 확인한다.
+        if (cardManager == null) return IsCardSpecificReward(rewardData.rewardType) == false; // CardManager 없음 -> 카드 전용 보상 제외
+
+        switch (rewardData.rewardType) // 보상 타입 확인
         {
-            return IsCardSpecificReward(rewardData.rewardType) == false; // 카드 전용 보상은 제외한다.
-        }
+            case RewardType.NewRapidShot: return cardManager.HasCard(CardType.RapidShot) == false; // Rapid Shot 없음 -> 등장 가능
+            case RewardType.NewHeavyShot: return cardManager.HasCard(CardType.HeavyShot) == false; // Heavy Shot 없음 -> 등장 가능
+            case RewardType.UpgradePixelShotDamage: return cardManager.HasCard(CardType.PixelShot); // Pixel Shot 보유 -> 등장 가능
+            case RewardType.UpgradeFocusShotDamage: return cardManager.HasCard(CardType.FocusShot); // Focus Shot 보유 -> 등장 가능
+            case RewardType.UpgradeWideShotBulletCount: return cardManager.HasCard(CardType.WideShot); // Wide Shot 보유 -> 등장 가능
+            case RewardType.UpgradeRapidShotCooldown: return cardManager.HasCard(CardType.RapidShot); // Rapid Shot 보유 -> 등장 가능
+            case RewardType.UpgradeHeavyShotDamage: return cardManager.HasCard(CardType.HeavyShot); // Heavy Shot 보유 -> 등장 가능
+            
+            case RewardType.RelicBloodCore: return IsRelicAvailable(RelicType.BloodCore); // Blood Core 없음 -> 등장 가능
+            case RewardType.RelicManaStone: return IsRelicAvailable(RelicType.ManaStone); // Mana Stone 없음 -> 등장 가능
+            case RewardType.RelicShieldFragment: return IsRelicAvailable(RelicType.ShieldFragment); // Shield Fragment 없음 -> 등장 가능
+            case RewardType.RelicQuickGear: return IsRelicAvailable(RelicType.QuickGear); // Quick Gear 없음 -> 등장 가능
+            case RewardType.RelicBulletEngine: return IsRelicAvailable(RelicType.BulletEngine); // Bullet Engine 없음 -> 등장 가능
+            case RewardType.RelicPixelLens: return IsRelicAvailable(RelicType.PixelLens) && cardManager.HasCard(CardType.PixelShot); // Pixel Lens 없음 / Pixel Shot 보유 -> 등장 가능
+            case RewardType.RelicFocusLens: return IsRelicAvailable(RelicType.FocusLens) && cardManager.HasCard(CardType.FocusShot); // Focus Lens 없음 / Focus Shot 보유 -> 등장 가능
+            case RewardType.RelicWideBarrel: return IsRelicAvailable(RelicType.WideBarrel) && cardManager.HasCard(CardType.WideShot); // Wide Barrel 없음 / Wide Shot 보유 -> 등장 가능
+            case RewardType.RelicRapidBattery: return IsRelicAvailable(RelicType.RapidBattery) && cardManager.HasCard(CardType.RapidShot); // Rapid Battery 없음 / Rapid Shot 보유 -> 등장 가능
+            case RewardType.RelicHeavyCore: return IsRelicAvailable(RelicType.HeavyCore) && cardManager.HasCard(CardType.HeavyShot); // Heavy Core 없음 / Heavy Shot 보유 -> 등장 가능
+            
+            case RewardType.NewPierceShot: return cardManager.HasCard(CardType.PierceShot) == false; // Pierce Shot 없음 -> 등장 가능
+            case RewardType.NewBombShot: return cardManager.HasCard(CardType.BombShot) == false; // Bomb Shot 없음 -> 등장 가능
+            case RewardType.NewHomingShot: return cardManager.HasCard(CardType.HomingShot) == false; // Homing Shot 없음 -> 등장 가능
+            case RewardType.UpgradePierceShotDamage: return cardManager.HasCard(CardType.PierceShot); // Pierce Shot 보유 -> 등장 가능
+            case RewardType.UpgradePierceShotPierceCount: return cardManager.HasCard(CardType.PierceShot); // Pierce Shot 보유 -> 등장 가능
+            case RewardType.UpgradeBombShotDamage: return cardManager.HasCard(CardType.BombShot); // Bomb Shot 보유 -> 등장 가능
+            case RewardType.UpgradeBombShotRadius: return cardManager.HasCard(CardType.BombShot); // Bomb Shot 보유 -> 등장 가능
+            case RewardType.UpgradeHomingShotDamage: return cardManager.HasCard(CardType.HomingShot); // Homing Shot 보유 -> 등장 가능
+            case RewardType.UpgradeHomingShotTurnSpeed: return cardManager.HasCard(CardType.HomingShot); // Homing Shot 보유 -> 등장 가능
 
-        switch (rewardData.rewardType) // 보상 타입을 확인한다.
-        {
-            case RewardType.NewRapidShot: // Rapid Shot 새 카드 보상인지 확인한다.
-                return cardManager.HasCard(CardType.RapidShot) == false; // Rapid Shot이 없을 때만 등장한다.
+            case RewardType.RelicPiercingNeedle: return IsRelicAvailable(RelicType.PiercingNeedle) && cardManager.HasCard(CardType.PierceShot); // Piercing Needle 없음 / Pierce Shot 보유 -> 등장 가능
+            case RewardType.RelicPierceEngine: return IsRelicAvailable(RelicType.PierceEngine) && cardManager.HasCard(CardType.PierceShot); // Pierce Engine 없음 / Pierce Shot 보유 -> 등장 가능
+            case RewardType.RelicBlastPowder: return IsRelicAvailable(RelicType.BlastPowder) && cardManager.HasCard(CardType.BombShot); // Blast Powder 없음 / Bomb Shot 보유 -> 등장 가능
+            case RewardType.RelicBlastCore: return IsRelicAvailable(RelicType.BlastCore) && cardManager.HasCard(CardType.BombShot); // Blast Core 없음 / Bomb Shot 보유 -> 등장 가능
+            case RewardType.RelicSmartChip: return IsRelicAvailable(RelicType.SmartChip) && cardManager.HasCard(CardType.HomingShot); // Smart Chip 없음 / Homing Shot 보유 -> 등장 가능
 
-            case RewardType.NewHeavyShot: // Heavy Shot 새 카드 보상인지 확인한다.
-                return cardManager.HasCard(CardType.HeavyShot) == false; // Heavy Shot이 없을 때만 등장한다.
-
-            case RewardType.UpgradePixelShotDamage: // Pixel Shot 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.PixelShot); // Pixel Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeFocusShotDamage: // Focus Shot 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.FocusShot); // Focus Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeWideShotBulletCount: // Wide Shot 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.WideShot); // Wide Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeRapidShotCooldown: // Rapid Shot 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.RapidShot); // Rapid Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeHeavyShotDamage: // Heavy Shot 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.HeavyShot); // Heavy Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.RelicBloodCore: // Blood Core 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.BloodCore); // Blood Core가 없을 때만 등장한다.
-
-            case RewardType.RelicManaStone: // Mana Stone 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.ManaStone); // Mana Stone이 없을 때만 등장한다.
-
-            case RewardType.RelicShieldFragment: // Shield Fragment 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.ShieldFragment); // Shield Fragment가 없을 때만 등장한다.
-
-            case RewardType.RelicQuickGear: // Quick Gear 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.QuickGear); // Quick Gear가 없을 때만 등장한다.
-
-            case RewardType.RelicBulletEngine: // Bullet Engine 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.BulletEngine); // Bullet Engine이 없을 때만 등장한다.
-
-            case RewardType.RelicPixelLens: // Pixel Lens 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.PixelLens) && cardManager.HasCard(CardType.PixelShot); // Pixel Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicFocusLens: // Focus Lens 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.FocusLens) && cardManager.HasCard(CardType.FocusShot); // Focus Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicWideBarrel: // Wide Barrel 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.WideBarrel) && cardManager.HasCard(CardType.WideShot); // Wide Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicRapidBattery: // Rapid Battery 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.RapidBattery) && cardManager.HasCard(CardType.RapidShot); // Rapid Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicHeavyCore: // Heavy Core 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.HeavyCore) && cardManager.HasCard(CardType.HeavyShot); // Heavy Shot이 있을 때만 등장한다.
-
-            case RewardType.NewPierceShot: // Pierce Shot 새 카드 보상인지 확인한다.
-                return cardManager.HasCard(CardType.PierceShot) == false; // Pierce Shot이 없을 때만 등장한다.
-
-            case RewardType.NewBombShot: // Bomb Shot 새 카드 보상인지 확인한다.
-                return cardManager.HasCard(CardType.BombShot) == false; // Bomb Shot이 없을 때만 등장한다.
-
-            case RewardType.NewHomingShot: // Homing Shot 새 카드 보상인지 확인한다.
-                return cardManager.HasCard(CardType.HomingShot) == false; // Homing Shot이 없을 때만 등장한다.
-
-            case RewardType.UpgradePierceShotDamage: // Pierce Shot 데미지 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.PierceShot); // Pierce Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradePierceShotPierceCount: // Pierce Shot 관통 수 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.PierceShot); // Pierce Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeBombShotDamage: // Bomb Shot 데미지 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.BombShot); // Bomb Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeBombShotRadius: // Bomb Shot 폭발 범위 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.BombShot); // Bomb Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeHomingShotDamage: // Homing Shot 데미지 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.HomingShot); // Homing Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.UpgradeHomingShotTurnSpeed: // Homing Shot 유도 회전 속도 강화 보상인지 확인한다.
-                return cardManager.HasCard(CardType.HomingShot); // Homing Shot을 가지고 있을 때만 등장한다.
-
-            case RewardType.RelicPiercingNeedle: // Piercing Needle 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.PiercingNeedle) && cardManager.HasCard(CardType.PierceShot); // Pierce Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicPierceEngine: // Pierce Engine 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.PierceEngine) && cardManager.HasCard(CardType.PierceShot); // Pierce Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicBlastPowder: // Blast Powder 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.BlastPowder) && cardManager.HasCard(CardType.BombShot); // Bomb Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicBlastCore: // Blast Core 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.BlastCore) && cardManager.HasCard(CardType.BombShot); // Bomb Shot이 있을 때만 등장한다.
-
-            case RewardType.RelicSmartChip: // Smart Chip 유물 보상인지 확인한다.
-                return IsRelicAvailable(RelicType.SmartChip) && cardManager.HasCard(CardType.HomingShot); // Homing Shot이 있을 때만 등장한다.
-
-            default: // 일반 스탯 보상인 경우다.
-                return true; // 일반 보상은 항상 등장 가능하다.
+            default: return true; // 일반 보상 -> 항상 등장 가능
         }
     }
     private bool IsRelicAvailable(RelicType relicType) // 특정 유물이 보상으로 등장 가능한지 확인한다.
@@ -415,18 +344,14 @@ public class RewardManager : MonoBehaviour
         Time.timeScale = 1f; // 게임 시간을 다시 흐르게 한다.
 
         if (GameFlowManager.Instance != null) // 맵 진행 관리자가 있는지 확인한다.
-        {
-            GameFlowManager.Instance.CompleteActiveNodeAndReturnToMap(); // 현재 노드를 완료하고 맵 씬으로 돌아간다.
-        }
+        {  GameFlowManager.Instance.CompleteActiveNodeAndReturnToMap(); }// 현재 노드를 완료하고 맵 씬으로 돌아간다.
+        
         else if (nextBattleUI != null) // 맵 진행 관리자가 없고 기존 NextBattleUI가 있는지 확인한다.
-        {
-            nextBattleUI.Show(); // 기존 방식으로 다음 전투 버튼을 표시한다.
-        }
+        {  nextBattleUI.Show(); }// 기존 방식으로 다음 전투 버튼을 표시한다.
+        
         else // 다음 전투 UI가 없는 경우를 처리한다.
-        {
-            Debug.LogWarning("NextBattleUI is not assigned."); // 경고 로그를 출력한다.
-        }
-
+        { Debug.LogWarning("NextBattleUI is not assigned."); }// 경고 로그를 출력한다.
+        
         Debug.Log("Reward Selected : " + rewardData.rewardName); // 선택한 보상을 로그로 출력한다.
     }
 
@@ -586,13 +511,9 @@ public class RewardManager : MonoBehaviour
                 ApplyRelicReward(new RelicData("Smart Chip", "Homing Shot Turn Speed +1", RelicType.SmartChip, rewardData.value)); // Smart Chip 유물을 추가한다.
                 break; // switch문을 종료한다.
 
-
-
             default: // 정의되지 않은 보상 타입인 경우다.
                 Debug.LogWarning("Unknown Reward Type : " + rewardData.rewardType); // 알 수 없는 보상 타입 로그를 출력한다.
                 break; // switch문을 종료한다.
-
-
 
         }
     }
@@ -762,7 +683,6 @@ public class RewardManager : MonoBehaviour
             Debug.LogError("CardManager is not assigned."); // 오류 로그를 출력한다.
             return; // 보상 적용을 중단한다.
         }
-
         cardManager.UpgradeCardHomingTurnSpeed(cardType, value); // 특정 카드 유도 회전 속도를 증가시킨다.
     }
 }

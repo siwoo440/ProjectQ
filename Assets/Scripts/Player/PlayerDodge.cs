@@ -62,15 +62,12 @@ public class PlayerDodge : MonoBehaviour
         rb.linearVelocity = lastMoveDirection * dodgeSpeed; // 마지막 이동 방향으로 빠르게 이동한다.
 
         yield return new WaitForSeconds(dodgeTime); // 회피 이동 시간만큼 기다린다.
-
         IsDodging = false; // 회피 이동 상태를 해제한다.
 
         yield return new WaitForSeconds(invincibleTime - dodgeTime); // 남은 무적 시간만큼 기다린다.
-
         IsInvincible = false; // 무적 상태를 해제한다.
 
         yield return new WaitForSeconds(dodgeCooldown); // 회피 쿨타임만큼 기다린다.
-
         canDodge = true; // 회피를 다시 사용할 수 있게 한다.
     }
 }

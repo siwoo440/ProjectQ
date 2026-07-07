@@ -61,11 +61,7 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
 
     public void UnregisterRestNodeUI(RestNodeUIController targetRestNodeUIController) // 휴식 UI 해제 함수
     {
-        if (restNodeUIController != targetRestNodeUIController) // 현재 등록 UI와 다른지 확인
-        {
-            return; // 해제 중단
-        }
-
+        if (restNodeUIController != targetRestNodeUIController) { return; }// 현재 등록 UI와 다른지 확인 -> 해제 중단
         restNodeUIController = null; // 휴식 UI 비우기
     }
     public void RegisterEventRoomUI(EventRoomUIController newEventRoomUIController) // 이벤트 방 UI 등록 함수
@@ -75,20 +71,12 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
 
     public void UnregisterEventRoomUI(EventRoomUIController targetEventRoomUIController) // 이벤트 방 UI 해제 함수
     {
-        if (eventRoomUIController != targetEventRoomUIController) // 등록된 UI 비교
-        {
-            return; // 해제 중단
-        }
-
+        if (eventRoomUIController != targetEventRoomUIController){ return; } // 등록된 UI 비교 -> 해제 중단
         eventRoomUIController = null; // 이벤트 방 UI 비우기
     }
     public void EnsureMapExists() // 맵 존재 보장 함수
     {
-        if (mapNodes.Count > 0) // 기존 맵 확인
-        {
-            return; // 생성 중단
-        }
-
+        if (mapNodes.Count > 0) { return; } // 기존 맵 확인 -> 생성 중단
         GenerateNewMap(); // 새 맵 생성
     }
 
@@ -120,51 +108,28 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
                 int battleNumber = floor + 1; // 전투 번호 계산
                 Vector2 position = GetNodePosition(floor, actualLane); // 노드 위치 계산
                 MapNodeData nodeData = new MapNodeData(nodeId, floor, actualLane, nodeType, battleNumber, position); // 노드 데이터 생성
-
                 mapNodes.Add(nodeData); // 노드 목록 추가
                 nodeId++; // 노드 ID 증가
             }
         }
-
         CreateConnections(); // 노드 연결 생성
         Debug.Log("Map Generated. Node Count : " + mapNodes.Count); // 생성 로그
     }
 
-    private StageNodeType GetRandomNodeType(int floor) // 층별 노드 타입 생성 함수
+    private StageNodeType GetRandomNodeType(int floor) // 층 조건과 확률에 따른 노드 타입 생성
     {
-        if (floor == floorCount - 1) // 마지막 층 확인
-        {
-            return StageNodeType.BossBattle; // 보스 노드 반환
-        }
+        if (floor == floorCount - 1) return StageNodeType.BossBattle; // 마지막 층 보스 노드
+        if (floor == 0) return StageNodeType.BossBattle; // 첫 층 보스 테스트 노드
+        if (floor == floorCount - 2) return Random.value < 0.5f ? StageNodeType.Rest : StageNodeType.EliteBattle; 
+        // 보스 직전 휴식 또는 엘리트 노드
 
-        if (floor == 0) // 첫 층 확인
-        {
-            return StageNodeType.BossBattle; // 보스 전투 테스트 반환
-        }
+        float randomValue = Random.value; // 일반 층 노드 확률값
 
-        if (floor == floorCount - 2) // 보스 직전 층 확인
-        {
-            return Random.value < 0.5f ? StageNodeType.Rest : StageNodeType.EliteBattle; // 휴식 또는 엘리트 반환
-        }
+        if (randomValue < 0.6f) return StageNodeType.NormalBattle; // 일반 전투 노드
+        if (randomValue < 0.75f) return StageNodeType.Event; // 이벤트 노드
+        if (randomValue < 0.9f) return StageNodeType.Rest; // 휴식 노드
 
-        float randomValue = Random.value; // 랜덤 값 생성
-
-        if (randomValue < 0.6f) // 일반 전투 확률 확인
-        {
-            return StageNodeType.NormalBattle; // 일반 전투 반환
-        }
-
-        if (randomValue < 0.75f) // 이벤트 확률 확인
-        {
-            return StageNodeType.Event; // 이벤트 반환
-        }
-
-        if (randomValue < 0.9f) // 휴식 확률 확인
-        {
-            return StageNodeType.Rest; // 휴식 반환
-        }
-
-        return StageNodeType.EliteBattle; // 엘리트 반환
+        return StageNodeType.EliteBattle; // 엘리트 전투 노드
     }
 
     private Vector2 GetNodePosition(int floor, int lane) // 노드 위치 계산 함수
@@ -260,34 +225,18 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
 
     public bool IsNodeSelectable(MapNodeData nodeData) // 노드 선택 가능 확인 함수
     {
-        if (nodeData == null) // 노드 없음 확인
-        {
-            return false; // 선택 불가 반환
-        }
+        if (nodeData == null   ||   // 노드 없음
+            activeNodeId != -1 ||   // 진행 중 노드 존재
+            nodeData.isCleared)     // 클리어 완료 노드
+        return false;               // -> 선택 불가
 
-        if (activeNodeId != -1) // 진행 중 노드 확인
-        {
-            return false; // 선택 불가 반환
-        }
 
-        if (nodeData.isCleared) // 클리어 노드 확인
-        {
-            return false; // 선택 불가 반환
-        }
-
-        if (currentClearedNodeId == -1) // 첫 선택 확인
-        {
-            return nodeData.floor == 0; // 첫 층만 선택 가능
-        }
-
-        MapNodeData currentNode = GetNodeById(currentClearedNodeId); // 현재 위치 노드 검색
-
-        if (currentNode == null) // 현재 위치 없음 확인
-        {
-            return false; // 선택 불가 반환
-        }
-
-        return currentNode.connectedNodeIds.Contains(nodeData.nodeId); // 연결 노드 여부 반환
+        if (currentClearedNodeId == -1) return nodeData.floor == 0; // 첫 선택 상태 -> 첫 층만 선택 가능
+        
+        MapNodeData currentNode = GetNodeById(currentClearedNodeId); // 현재 클리어 노드 ID -> 현재 위치 노드 검색
+        if (currentNode == null)        return false; // 현재 위치 노드 없음 -> 선택 불가
+        
+        return currentNode.connectedNodeIds.Contains(nodeData.nodeId); // 현재 노드 연결 목록 확인 -> 선택 노드 연결 여부 반환
     }
 
     public void SelectNode(MapNodeData nodeData) // 노드 선택 함수
@@ -298,10 +247,10 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
             return; // 선택 중단
         }
 
-        activeNodeId = nodeData.nodeId; // 현재 진행 노드 저장
-        selectedNodeType = nodeData.nodeType; // 선택 노드 타입 저장
-        selectedBattleNumber = nodeData.battleNumber; // 선택 전투 번호 저장
-        selectedBattleType = ConvertNodeTypeToBattleType(nodeData.nodeType); // 전투 타입 변환
+        activeNodeId            = nodeData.nodeId; // 현재 진행 노드 저장
+        selectedNodeType        = nodeData.nodeType; // 선택 노드 타입 저장
+        selectedBattleNumber    = nodeData.battleNumber; // 선택 전투 번호 저장
+        selectedBattleType      = ConvertNodeTypeToBattleType(nodeData.nodeType); // 전투 타입 변환
 
         Debug.Log("Selected Node : " + nodeData.nodeId + " / " + nodeData.nodeType); // 선택 로그
 
@@ -320,20 +269,14 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
         SceneManager.LoadScene(battleSceneName); // 전투 씬 이동
     }
 
+  
     private BattleType ConvertNodeTypeToBattleType(StageNodeType nodeType) // 전투 타입 변환 함수
     {
-        if (nodeType == StageNodeType.EliteBattle) // 엘리트 노드 확인
-        {
-            return BattleType.Elite; // 엘리트 반환
-        }
-
-        if (nodeType == StageNodeType.BossBattle) // 보스 노드 확인
-        {
-            return BattleType.Boss; // 보스 반환
-        }
-
-        return BattleType.Normal; // 일반 반환
+        if (nodeType == StageNodeType.EliteBattle)  return BattleType.Elite; // 엘리트 노드 -> 엘리트 반환
+        if (nodeType == StageNodeType.BossBattle)   return BattleType.Boss; // 보스 노드 -> 보스 반환
+        return BattleType.Normal; // 그 외 노드 -> 일반 반환
     }
+
 
     private void HandleRestNode() // 휴식 노드 처리 함수
     {
@@ -523,11 +466,7 @@ public class GameFlowManager : MonoBehaviour // 게임 진행 관리 클래스
 
         activeNodeId = -1; // 진행 노드 초기화
 
-        if (selectedNodeType == StageNodeType.BossBattle) // 보스 클리어 확인
-        {
-            Debug.Log("Chapter Clear"); // 챕터 클리어 로그
-        }
-
+        if (selectedNodeType == StageNodeType.BossBattle) { Debug.Log("Chapter Clear"); } // 보스 클리어 확인->챕터 클리어 로그
         SceneManager.LoadScene(mapSceneName); // 맵 씬 이동
     }
 }
