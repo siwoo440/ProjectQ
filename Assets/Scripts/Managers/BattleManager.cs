@@ -17,6 +17,7 @@ public class BattleManager : MonoBehaviour
     public RewardManager rewardManager; // 보상 관리자를 저장한다.
     public GameOverUI gameOverUI; // 게임 오버 UI를 저장한다.
     public BattleInfoUI battleInfoUI; // 전투 번호 UI를 저장한다.
+    public ChapterClearUIController chapterClearUIController; // 챕터 클리어 UI를 저장한다.
 
     [Header("Battle State")]
     public BattleState currentState = BattleState.Ready; // 현재 전투 상태를 저장한다.
@@ -35,6 +36,11 @@ public class BattleManager : MonoBehaviour
         if (gameOverUI != null) // 게임 오버 UI가 연결되어 있는지 확인한다.
         {
             gameOverUI.Hide(); // 시작 시 게임 오버 UI를 숨긴다.
+        }
+
+        if (chapterClearUIController != null) // 챕터 클리어 UI 연결 확인
+        {
+            chapterClearUIController.Hide(); // 시작 시 챕터 클리어 UI 숨김
         }
     }
 
@@ -99,6 +105,11 @@ public class BattleManager : MonoBehaviour
         if (gameOverUI != null) // 게임 오버 UI가 연결되어 있는지 확인한다.
         {
             gameOverUI.Hide(); // 게임 오버 UI를 숨긴다.
+        }
+
+        if (chapterClearUIController != null) // 챕터 클리어 UI 연결 확인
+        {
+            chapterClearUIController.Hide(); // 챕터 클리어 UI 숨김
         }
 
         Time.timeScale = 1f; // 혹시 멈춰 있던 게임 시간을 다시 흐르게 한다.
@@ -183,22 +194,55 @@ public class BattleManager : MonoBehaviour
         clearRoutine = StartCoroutine(ClearBattleRoutine()); // 클리어 연출과 보상 표시를 순서대로 실행한다.
     }
 
-    private IEnumerator ClearBattleRoutine() // 전투 클리어 후 보상 UI를 표시한다.
+    private IEnumerator ClearBattleRoutine() // 전투 클리어 후 UI를 표시하는 함수
     {
-        if (battleClearUI != null) // 클리어 UI가 연결되어 있는지 확인한다.
+        ClearRemainingProjectiles(); // 남은 탄환 정리
+
+        if (IsBossBattleClear()) // 보스 전투 클리어 확인
         {
-            battleClearUI.Show("BATTLE CLEAR"); // 클리어 UI를 표시한다.
+            if (battleClearUI != null) // 전투 클리어 UI 확인
+            {
+                battleClearUI.Show("CHAPTER CLEAR"); // 챕터 클리어 문구 표시
+            }
+
+            yield return new WaitForSeconds(1f); // 1초 대기
+
+            if (battleClearUI != null) // 전투 클리어 UI 확인
+            {
+                battleClearUI.Hide(); // 전투 클리어 UI 숨김
+            }
+
+            if (rewardManager != null) // 보상 관리자 확인
+            {
+                rewardManager.HideRewardPanel(); // 보상 패널 숨김
+            }
+
+            if (chapterClearUIController != null) // 챕터 클리어 UI 확인
+            {
+                chapterClearUIController.Show(currentBattleNumber); // 챕터 클리어 UI 표시
+            }
+            else // 챕터 클리어 UI 없음
+            {
+                Debug.LogWarning("ChapterClearUIController is not assigned."); // 경고 로그
+            }
+
+            yield break; // 보상 UI 실행 방지
         }
 
-        yield return new WaitForSeconds(1f); // 1초 동안 클리어 문구를 보여준다.
-
-        if (rewardManager != null) // 보상 관리자가 연결되어 있는지 확인한다.
+        if (battleClearUI != null) // 전투 클리어 UI 확인
         {
-            rewardManager.ShowRewardPanel(); // 보상 선택 UI를 표시한다.
+            battleClearUI.Show("BATTLE CLEAR"); // 일반 전투 클리어 문구 표시
         }
-        else // 보상 관리자가 없는 경우를 처리한다.
+
+        yield return new WaitForSeconds(1f); // 1초 대기
+
+        if (rewardManager != null) // 보상 관리자 확인
         {
-            Debug.LogWarning("RewardManager is not assigned."); // 경고 로그를 출력한다.
+            rewardManager.ShowRewardPanel(); // 보상 선택 UI 표시
+        }
+        else // 보상 관리자 없음
+        {
+            Debug.LogWarning("RewardManager is not assigned."); // 경고 로그
         }
     }
 
@@ -232,5 +276,37 @@ public class BattleManager : MonoBehaviour
         }
 
         Time.timeScale = 0f; // 게임 오버 상태에서 게임 시간을 멈춘다.
+    }
+    private bool IsBossBattleClear() // 보스 전투 클리어 확인 함수
+    {
+        if (GameFlowManager.Instance == null) // 진행 관리자 없음 확인
+        {
+            return false; // 보스 전투 아님
+        }
+        return GameFlowManager.Instance.selectedBattleType == BattleType.Boss; // 보스 전투 여부 반환
+    }
+
+    private void ClearRemainingProjectiles() // 남은 탄환 정리 함수
+    {
+        Bullet[] playerBullets = FindObjectsByType<Bullet>(FindObjectsSortMode.None); // 플레이어 탄환 검색
+
+        for (int i = 0; i < playerBullets.Length; i++) // 플레이어 탄환 수만큼 반복
+        {
+            Destroy(playerBullets[i].gameObject); // 플레이어 탄환 삭제
+        }
+
+        EnemyBullet[] enemyBullets = FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None); // 적 탄환 검색
+
+        for (int i = 0; i < enemyBullets.Length; i++) // 적 탄환 수만큼 반복
+        {
+            Destroy(enemyBullets[i].gameObject); // 적 탄환 삭제
+        }
+
+        BossBullet[] bossBullets = FindObjectsByType<BossBullet>(FindObjectsSortMode.None); // 보스 탄환 검색
+
+        for (int i = 0; i < bossBullets.Length; i++) // 보스 탄환 수만큼 반복
+        {
+            Destroy(bossBullets[i].gameObject); // 보스 탄환 삭제
+        }
     }
 }
