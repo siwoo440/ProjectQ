@@ -107,16 +107,9 @@ public class ChapterClearUIController : MonoBehaviour // 챕터 클리어 UI 관
 
     private void OnClickMainMenu() // 메인 메뉴 버튼 함수
     {
-        Time.timeScale = 1f; // 게임 시간 복구
+        Time.timeScale = 1f; // 시간 복구
 
-        if (IsSceneInBuildSettings(mainMenuSceneName)) // 메인 메뉴 씬 등록 확인
-        {
-            SceneManager.LoadScene(mainMenuSceneName); // 메인 메뉴 씬 이동
-            return; // 함수 종료
-        }
-
-        Debug.LogWarning("MainMenuScene is not added to Build Settings."); // 경고 로그
-        SceneManager.LoadScene(mapSceneName); // 임시로 맵 씬 이동
+        SceneManager.LoadScene(mainMenuSceneName); // 메인 메뉴 씬 이동
     }
 
     private bool IsSceneInBuildSettings(string sceneName) // 빌드 설정 씬 확인 함수
