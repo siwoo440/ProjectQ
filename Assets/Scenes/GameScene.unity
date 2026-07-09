@@ -2137,7 +2137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomMapManager
   currentFloorNumber: 1
   generateOnStart: 1
-  enableKeyboardTestMovement: 1
+  enableKeyboardTestMovement: 0
   autoClearEnteredRoomForTest: 1
   roomMinimapUI: {fileID: 2004933036}
   currentFloorData:
@@ -2562,6 +2562,8 @@ Transform:
   m_Children:
   - {fileID: 415057887}
   - {fileID: 2004933035}
+  - {fileID: 878528903}
+  - {fileID: 757014278}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &578897645
@@ -2744,7 +2746,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &609695027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3157,6 +3159,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1127227886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &757014277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 757014278}
+  m_Layer: 0
+  m_Name: RoomParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &757014278
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757014277}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 542623291}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &817813542
 GameObject:
   m_ObjectHideFlags: 0
@@ -3400,6 +3433,57 @@ MonoBehaviour:
   mainMenuButton: {fileID: 1239618617}
   mapSceneName: MapScene
   mainMenuSceneName: MainMenuScene
+--- !u!1 &878528902
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 878528903}
+  - component: {fileID: 878528904}
+  m_Layer: 0
+  m_Name: RoomSceneController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &878528903
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878528902}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 542623291}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &878528904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878528902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5900713a40a426841b55916269275a48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomSceneController
+  roomMapManager: {fileID: 415057888}
+  defaultRoomPrefab: {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+  roomParent: {fileID: 757014278}
+  playerTransform: {fileID: 1086770314}
+  roomSpawnPosition: {x: 0, y: 0, z: 0}
+  loadRoomOnStart: 1
+  disableKeyboardTestMovementOnStart: 1
 --- !u!1 &888426618
 GameObject:
   m_ObjectHideFlags: 0
@@ -8249,6 +8333,6 @@ SceneRoots:
   - {fileID: 1127227886}
   - {fileID: 973958079}
   - {fileID: 1178847741}
-  - {fileID: 1747483586}
   - {fileID: 542623291}
   - {fileID: 2090922104}
+  - {fileID: 1747483586}
