@@ -5,22 +5,39 @@ public class RoomDoor : MonoBehaviour // 방 문 상호작용 클래스
     [Header("Door Settings")] // 문 설정 제목
     public RoomDirection doorDirection; // 문 방향
 
-    public KeyCode interactKey = KeyCode.F; // 상호작용 키
-
-    [Header("Object References")] // 오브젝트 참조 제목
+    [Header("Door Visual Reference")] // 문 시각 참조 제목
     public GameObject visualRoot; // 문 시각 오브젝트
 
-    public GameObject lockedBarrier; // 전투 중 막는 베리어 오브젝트
+    public SpriteRenderer doorVisualRenderer; // 문 SpriteRenderer
+
+    [Header("Door Color Settings")] // 문 색상 설정 제목
+    public Color unlockedColor = Color.green; // 열린 문 색상
+
+    public Color lockedColor = Color.red; // 잠긴 문 색상
+
+    [Header("Door Sprite Settings")] // 문 이미지 설정 제목
+    public Sprite unlockedSprite; // 열린 문 이미지
+
+    public Sprite lockedSprite; // 잠긴 문 이미지
+
+    [Header("Door Lock Reference")] // 문 잠금 참조 제목
+    public Collider2D lockedCollider; // 잠겼을 때 켜지는 충돌 Collider
 
     private RoomSceneController roomSceneController; // 방 씬 관리자
 
-    private bool isPlayerInside; // 플레이어가 문 범위 안에 있는지 여부
+    private bool isConnected = false; // 연결된 방이 있는지 여부
+
+    private bool isLocked = false; // 문 잠금 여부
 
     private bool hasTriggeredMove = false; // 문 이동 실행 여부
 
-    public void Initialize(RoomSceneController controller, bool isConnected) // 문 초기화 함수
+    public void Initialize(RoomSceneController controller, bool connected) // 문 초기화 함수
     {
         roomSceneController = controller; // 방 씬 관리자 저장
+
+        isConnected = connected; // 연결 여부 저장
+
+        hasTriggeredMove = false; // 문 이동 실행 여부 초기화
 
         gameObject.SetActive(isConnected); // 연결된 방이 있을 때만 문 활성화
 
@@ -29,32 +46,54 @@ public class RoomDoor : MonoBehaviour // 방 문 상호작용 클래스
             visualRoot.SetActive(isConnected); // 문 표시 여부 설정
         }
 
-        if (lockedBarrier != null) // 베리어 오브젝트 확인
+        if (doorVisualRenderer == null && visualRoot != null) // 문 Renderer 자동 검색
         {
-            lockedBarrier.SetActive(false); // 24일차에는 베리어 비활성화
+            doorVisualRenderer = visualRoot.GetComponentInChildren<SpriteRenderer>(); // 문 SpriteRenderer 가져오기
         }
 
-        hasTriggeredMove = false; // 문 이동 실행 여부 초기화
+        SetLocked(false); // 초기 문 상태를 열림으로 설정
     }
 
-    private void Update() // 매 프레임 입력 확인 함수
+    public void SetLocked(bool locked) // 문 잠금 상태 설정 함수
     {
-        if (!isPlayerInside) // 플레이어가 문 범위 안에 없는지 확인
+        isLocked = locked; // 잠금 상태 저장
+
+        hasTriggeredMove = false; // 잠금 상태 변경 시 이동 실행 여부 초기화
+
+        if (lockedCollider != null) // 잠금 Collider 확인
         {
-            return; // 입력 처리 중단
+            lockedCollider.enabled = locked; // 잠겼을 때만 충돌 켜기
         }
 
-        if (Input.GetKeyDown(interactKey)) // 상호작용 키 입력 확인
+        if (doorVisualRenderer != null) // 문 Renderer 확인
         {
-            if (roomSceneController != null) // 방 씬 관리자 확인
+            doorVisualRenderer.color = locked ? lockedColor : unlockedColor; // 잠금 상태에 따라 색상 변경
+
+            if (locked && lockedSprite != null) // 잠김 이미지 확인
             {
-                roomSceneController.TryMoveThroughDoor(doorDirection); // 문 방향으로 이동 시도
+                doorVisualRenderer.sprite = lockedSprite; // 잠긴 문 이미지 적용
+            }
+            else if (!locked && unlockedSprite != null) // 열림 이미지 확인
+            {
+                doorVisualRenderer.sprite = unlockedSprite; // 열린 문 이미지 적용
             }
         }
+
+        Debug.Log("Door Lock State : " + doorDirection + " / " + locked); // 문 잠금 상태 로그
     }
 
     private void OnTriggerEnter2D(Collider2D other) // 플레이어 진입 감지 함수
     {
+        if (!isConnected) // 연결된 방이 없는 문인지 확인
+        {
+            return; // 이동 처리 중단
+        }
+
+        if (isLocked) // 문이 잠겼는지 확인
+        {
+            return; // 잠긴 문은 이동 처리 안 함
+        }
+
         if (hasTriggeredMove) // 이미 이동을 실행했는지 확인
         {
             return; // 중복 이동 방지
@@ -75,17 +114,5 @@ public class RoomDoor : MonoBehaviour // 방 문 상호작용 클래스
         {
             roomSceneController.TryMoveThroughDoor(doorDirection); // 문 방향으로 이동 시도
         }
-    }
-
-    private void OnTriggerExit2D(Collider2D other) // 플레이어 이탈 감지 함수
-    {
-        PlayerStats playerStats = other.GetComponentInParent<PlayerStats>(); // 플레이어 스탯 검색
-
-        if (playerStats == null) // 플레이어가 아닌지 확인
-        {
-            return; // 처리 중단
-        }
-
-        Debug.Log("Exit Door : " + doorDirection); // 문 범위 이탈 로그
     }
 }
