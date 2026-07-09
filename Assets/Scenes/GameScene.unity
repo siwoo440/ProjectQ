@@ -3480,9 +3480,17 @@ MonoBehaviour:
   roomMapManager: {fileID: 415057888}
   roomParent: {fileID: 757014278}
   playerTransform: {fileID: 1086770314}
+  playerRigidbody: {fileID: 1086770312}
+  cameraTransform: {fileID: 1613958434}
   roomPrefabDatabase: {fileID: 11400000, guid: 3eec9b3254e71a84f925cb046f03ec20, type: 2}
   defaultRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
-  roomSpawnPosition: {x: 0, y: 0, z: 0}
+  roomWorldSize: {x: 20, y: 12}
+  roomOriginPosition: {x: 0, y: 0, z: 0}
+  keepRoomDistance: 1
+  cameraMoveDuration: 0.35
+  cameraOffset: {x: 0, y: 0, z: -10}
+  behavioursToDisableDuringRoomTransition:
+  - {fileID: 0}
   loadRoomOnStart: 1
   disableKeyboardTestMovementOnStart: 1
 --- !u!1 &888426618
@@ -4472,7 +4480,7 @@ GameObject:
   - component: {fileID: 1086770313}
   - component: {fileID: 1086770312}
   - component: {fileID: 1086770311}
-  - component: {fileID: 1086770310}
+  - component: {fileID: 1086770315}
   - component: {fileID: 1086770309}
   - component: {fileID: 1086770308}
   m_Layer: 0
@@ -4518,19 +4526,6 @@ MonoBehaviour:
   dodgeTime: 0.2
   invincibleTime: 0.3
   dodgeCooldown: 1.2
---- !u!114 &1086770310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1086770307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcb530630f8f3c443a6be23c72859307, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 5
 --- !u!58 &1086770311
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4669,6 +4664,19 @@ Transform:
   - {fileID: 284280048}
   m_Father: {fileID: 386104466}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1086770315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086770307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcb530630f8f3c443a6be23c72859307, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  moveSpeed: 5
 --- !u!1 &1127227885
 GameObject:
   m_ObjectHideFlags: 0
