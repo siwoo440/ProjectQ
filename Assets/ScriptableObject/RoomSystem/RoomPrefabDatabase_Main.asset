@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdc6e9c90a7bc6e4fb0c530d4eccd358, type: 3}
+  m_Name: RoomPrefabDatabase_Main
+  m_EditorClassIdentifier: Assembly-CSharp::RoomPrefabDatabase
+  globalFallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+  regionPrefabSets:
+  - regionType: 0
+    fallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    startRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    normalBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+    - {fileID: 5796819741789719179, guid: e0b5b1de37c62d64e9d45829016390a7, type: 3}
+    eliteBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    eventRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: a2e5ad4cf77bfc64480e2b7e6ae524bd, type: 3}
+    restRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: e0c475126c039824f9d1818fc7bb920a, type: 3}
+    midBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    finalBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+  - regionType: 1
+    fallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    startRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    normalBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+    - {fileID: 5796819741789719179, guid: e0b5b1de37c62d64e9d45829016390a7, type: 3}
+    eliteBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    eventRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: a2e5ad4cf77bfc64480e2b7e6ae524bd, type: 3}
+    restRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: e0c475126c039824f9d1818fc7bb920a, type: 3}
+    midBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    finalBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+  - regionType: 2
+    fallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    startRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    normalBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+    - {fileID: 5796819741789719179, guid: e0b5b1de37c62d64e9d45829016390a7, type: 3}
+    eliteBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    eventRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: a2e5ad4cf77bfc64480e2b7e6ae524bd, type: 3}
+    restRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: e0c475126c039824f9d1818fc7bb920a, type: 3}
+    midBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    finalBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+  - regionType: 3
+    fallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    startRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    normalBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+    - {fileID: 5796819741789719179, guid: e0b5b1de37c62d64e9d45829016390a7, type: 3}
+    eliteBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    eventRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: a2e5ad4cf77bfc64480e2b7e6ae524bd, type: 3}
+    restRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: e0c475126c039824f9d1818fc7bb920a, type: 3}
+    midBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    finalBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+  - regionType: 4
+    fallbackRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    startRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
+    normalBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
+    - {fileID: 5796819741789719179, guid: e0b5b1de37c62d64e9d45829016390a7, type: 3}
+    eliteBattleRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    eventRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: a2e5ad4cf77bfc64480e2b7e6ae524bd, type: 3}
+    restRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: e0c475126c039824f9d1818fc7bb920a, type: 3}
+    midBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}
+    finalBossRoomPrefabs:
+    - {fileID: 5796819741789719179, guid: 434aa00499eed964da31f2bb74f9e7d7, type: 3}

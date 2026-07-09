@@ -2138,7 +2138,7 @@ MonoBehaviour:
   currentFloorNumber: 1
   generateOnStart: 1
   enableKeyboardTestMovement: 0
-  autoClearEnteredRoomForTest: 1
+  autoClearEnteredRoomForTest: 0
   roomMinimapUI: {fileID: 2004933036}
   currentFloorData:
     floorNumber: 0
@@ -3478,9 +3478,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomSceneController
   roomMapManager: {fileID: 415057888}
-  defaultRoomPrefab: {fileID: 5796819741789719179, guid: 583de15059d11014c863e075fbf25cc0, type: 3}
   roomParent: {fileID: 757014278}
   playerTransform: {fileID: 1086770314}
+  roomPrefabDatabase: {fileID: 11400000, guid: 3eec9b3254e71a84f925cb046f03ec20, type: 2}
+  defaultRoomPrefab: {fileID: 5796819741789719179, guid: 68f02ea15bd7fd549a00b593d96300e5, type: 3}
   roomSpawnPosition: {x: 0, y: 0, z: 0}
   loadRoomOnStart: 1
   disableKeyboardTestMovementOnStart: 1
@@ -4148,7 +4149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &973958079
 Transform:
   m_ObjectHideFlags: 0
