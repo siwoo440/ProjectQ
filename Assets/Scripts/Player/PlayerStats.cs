@@ -141,4 +141,11 @@ public class PlayerStats : MonoBehaviour
             battleManager.OnPlayerDead(); // BattleManager에게 플레이어 사망을 알린다.
         }
     }
+    public void RecoverForNextFloor() // 다음층 진입 시 회복 함수
+    {
+        currentHealth = maxHealth; // HP 전부 회복
+        currentMana = maxMana; // MP 전부 회복
+
+        Debug.Log("Recovered for next floor."); // 회복 로그
+    }
 }

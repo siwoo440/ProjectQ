@@ -9,6 +9,7 @@ public class RoomData // 방 하나의 정보를 저장하는 클래스
     public bool isCleared; // 클리어 여부
     public int distanceFromStart; // 시작 방으로부터의 거리
     public int roomPrefabIndex; // 현재 방에 선택된 프리팹 인덱스
+    public bool isEndRoom; // 현재 층의 끝방 여부
 
     public RoomData(Vector2Int position, RoomType type) // 방 데이터 생성자
     {
@@ -18,6 +19,7 @@ public class RoomData // 방 하나의 정보를 저장하는 클래스
         isCleared = false; // 기본 클리어 여부 초기화
         distanceFromStart = 0; // 기본 거리 초기화
         roomPrefabIndex = -1; // 선택된 방 프리팹 인덱스 초기화
+        isEndRoom = false; // 기본 끝방 여부 초기화
     }
 
     public bool IsBossRoom() // 보스방 여부 반환 함수

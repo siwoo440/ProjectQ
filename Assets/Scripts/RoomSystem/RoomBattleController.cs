@@ -39,7 +39,13 @@ public class RoomBattleController : MonoBehaviour // 방 전투 관리 클래스
     private readonly List<EnemyHealth> aliveEnemies = new List<EnemyHealth>(); // 살아있는 적 목록
 
     private bool isBattleRunning = false; // 전투 진행 여부
+    
+    [Header("Next Floor Portal")] // 다음층 포탈 제목
+    public GameObject nextFloorPortalPrefab; // 다음층 이동 포탈 프리팹
 
+    public Transform portalSpawnPoint; // 포탈 생성 위치
+
+    private GameObject spawnedPortalObject; // 생성된 포탈 오브젝트
     public void Initialize(RoomData roomData, RoomController controller, RoomMapManager mapManager) // 전투 초기화 함수
     {
         currentRoomData = roomData; // 현재 방 데이터 저장
@@ -47,9 +53,8 @@ public class RoomBattleController : MonoBehaviour // 방 전투 관리 클래스
         roomMapManager = mapManager; // 맵 관리자 저장
 
         StopAllCoroutines(); // 기존 코루틴 정지
-
         ClearSpawnedEnemies(); // 기존 적 제거
-
+        ClearSpawnedPortal(); // 기존 포탈 제거
         aliveEnemies.Clear(); // 적 목록 초기화
 
         isBattleRunning = false; // 전투 상태 초기화
@@ -249,6 +254,11 @@ public class RoomBattleController : MonoBehaviour // 방 전투 관리 클래스
             roomMapManager.RefreshMinimap(); // 미니맵 갱신
         }
 
+        if (ShouldSpawnNextFloorPortal()) // 다음층 포탈 생성 조건 확인
+        {
+            SpawnNextFloorPortal(); // 다음층 포탈 생성
+        }
+
         Debug.Log("Room Battle Clear"); // 방 클리어 로그
     }
 
@@ -281,5 +291,68 @@ public class RoomBattleController : MonoBehaviour // 방 전투 관리 클래스
 
             Destroy(child.gameObject); // 적 오브젝트 삭제
         }
+    }
+
+    private bool ShouldSpawnNextFloorPortal() // 다음층 포탈을 생성해야 하는지 확인하는 함수
+    {
+        if (currentRoomData == null) // 현재 방 데이터 확인
+        {
+            return false; // 포탈 생성 안 함
+        }
+
+        if (!currentRoomData.isEndRoom) // 현재 층 끝방인지 확인
+        {
+            return false; // 포탈 생성 안 함
+        }
+
+        if (spawnedPortalObject != null) // 이미 포탈이 있는지 확인
+        {
+            return false; // 중복 생성 방지
+        }
+
+        return true; // 포탈 생성 가능
+    }
+
+    private void SpawnNextFloorPortal() // 다음층 포탈 생성 함수
+    {
+        if (nextFloorPortalPrefab == null) // 포탈 프리팹 확인
+        {
+            Debug.LogWarning("Next Floor Portal Prefab is missing."); // 경고 로그
+            return; // 생성 중단
+        }
+
+        Vector3 spawnPosition = transform.position; // 기본 생성 위치 설정
+
+        if (portalSpawnPoint != null) // 포탈 생성 위치 확인
+        {
+            spawnPosition = portalSpawnPoint.position; // 지정된 위치 사용
+        }
+
+        Transform parent = enemyParent != null ? enemyParent : transform; // 포탈 부모 결정
+
+        spawnedPortalObject = Instantiate(nextFloorPortalPrefab, spawnPosition, Quaternion.identity, parent); // 포탈 생성
+
+        RoomPortal roomPortal = spawnedPortalObject.GetComponent<RoomPortal>(); // 포탈 스크립트 가져오기
+
+        if (roomPortal != null) // 포탈 스크립트 확인
+        {
+            RoomSceneController sceneController = FindFirstObjectByType<RoomSceneController>(); // 방 씬 관리자 검색
+
+            roomPortal.Initialize(sceneController); // 포탈 초기화
+        }
+
+        Debug.Log("Next Floor Portal Spawned"); // 포탈 생성 로그
+    }
+
+    private void ClearSpawnedPortal() // 기존 포탈 제거 함수
+    {
+        if (spawnedPortalObject == null) // 생성된 포탈 확인
+        {
+            return; // 제거 중단
+        }
+
+        Destroy(spawnedPortalObject); // 포탈 제거
+
+        spawnedPortalObject = null; // 포탈 참조 초기화
     }
 }

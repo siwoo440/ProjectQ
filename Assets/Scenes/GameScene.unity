@@ -2136,6 +2136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomMapManager
   currentFloorNumber: 1
+  maxFloorNumber: 15
   generateOnStart: 1
   enableKeyboardTestMovement: 0
   autoClearEnteredRoomForTest: 0
@@ -8334,6 +8335,67 @@ MonoBehaviour:
   bonusBulletDamage: 0
   bonusBulletSpeed: 0
   cooldownReduction: 0
+--- !u!1001 &5723264674874495652
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1904899084132421414, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: roomSceneController
+      value: 
+      objectReference: {fileID: 878528904}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245234962776247007, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7902140693640258278, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+      propertyPath: m_Name
+      value: Portal_NextFloor
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -8345,3 +8407,4 @@ SceneRoots:
   - {fileID: 542623291}
   - {fileID: 2090922104}
   - {fileID: 1747483586}
+  - {fileID: 5723264674874495652}

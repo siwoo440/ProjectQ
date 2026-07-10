@@ -1861,6 +1861,37 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!1 &5662222762456189716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8331910332754375874}
+  m_Layer: 0
+  m_Name: PortalSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8331910332754375874
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5662222762456189716}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5159239683729452784}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5796819741789719179
 GameObject:
   m_ObjectHideFlags: 0
@@ -1900,6 +1931,7 @@ Transform:
   - {fileID: 4454319399209283690}
   - {fileID: 4012114021586763907}
   - {fileID: 3523299900369504414}
+  - {fileID: 8331910332754375874}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5973729341211453700
@@ -1948,13 +1980,17 @@ MonoBehaviour:
   - {fileID: 1258948019402942002, guid: 667491c49e70d8f40bb2200e7c81786f, type: 3}
   eliteEnemyPrefabs:
   - {fileID: 1258948019402942002, guid: 52f335048bc663b45a7ee69e58c3de9a, type: 3}
-  midBossPrefabs: []
-  finalBossPrefabs: []
+  midBossPrefabs:
+  - {fileID: 1258948019402942002, guid: 52f335048bc663b45a7ee69e58c3de9a, type: 3}
+  finalBossPrefabs:
+  - {fileID: 1258948019402942002, guid: 52f335048bc663b45a7ee69e58c3de9a, type: 3}
   normalEnemyCount: 3
   eliteEnemyCount: 4
   midBossEnemyCount: 1
   finalBossEnemyCount: 1
   clearCheckInterval: 0.2
+  nextFloorPortalPrefab: {fileID: 7902140693640258278, guid: feb1628b129dab947bd00ecc2cf65b56, type: 3}
+  portalSpawnPoint: {fileID: 8331910332754375874}
 --- !u!1 &5865550341585931254
 GameObject:
   m_ObjectHideFlags: 0
